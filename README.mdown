@@ -22,11 +22,11 @@ Sample Projects
 To run our sample apps, you need to import this repo as a standalone android project:
 
 1. Clone this repository onto your machine.
-2. Import this repository's project with Android Studio (File > Import Project > `SampleLoginPiggate` folder). The project has dependencies on the Asynchronous Http Client and on Estimote SDK, for more detailed info please see at this link(https://github.com/loopj/android-async-http) or this one(https://github.com/Estimote/Android-SDK),respectively. 
+2. Import this repository's project with Android Studio (File > Import Project > `PiggateLogin` folder). The project has dependencies on the Asynchronous Http Client and on Estimote SDK, for more detailed info please see at this link(https://github.com/loopj/android-async-http) or this one(https://github.com/Estimote/Android-SDK) ,respectively. 
 3. Specify the following in `res/values/strings.xml` of each sample project:
 * <code>piggate_app_id</code> and <code>piggate_uuid_region</code>(optional)
 4. Specify the following in `AndroidManifest.xml`of each sample project:
-* <code><meta-data android:name="com.iternox.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/></code> and <code><meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/></code>(optional)
+* <code>&lt;meta-data android:name="com.iternox.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/&gt;</code> and <code>&lt;meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/&gt;</code>(optional)
 5. Build and run the sample apps using Android Studio.
 
 
