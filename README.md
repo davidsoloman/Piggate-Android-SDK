@@ -1,1 +1,0 @@
-# Piggate-Android-SDK
