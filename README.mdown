@@ -36,7 +36,7 @@ GIVE FEEDBACK
 -------------
 Please report bugs or issues at repository
 
-Ask questions on Stack Overflow (http://stackoverflow.piggate.com)
+Ask questions on Stack Overflow (http://piggate.com/ask)
 
 
 LICENSE
