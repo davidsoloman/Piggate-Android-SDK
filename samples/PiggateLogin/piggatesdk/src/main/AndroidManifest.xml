@@ -16,7 +16,7 @@
 
 -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.iternox.piggate.sdk">
+    package="com.piggate.sdk">
 
     <application android:allowBackup="true" android:label="@string/app_name"
         >

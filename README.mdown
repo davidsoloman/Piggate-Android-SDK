@@ -13,20 +13,28 @@ We built several sample apps demonstrating how to use the Piggate SDK for Androi
 Features
 --------
 - Range beacons nearby
-- Make login/register with Piggate
-- Getting offers iBeacons for each app from Piggate
+- Do login and register with Piggate
+- Do custom notifications when a beacon is near
+- Getting iBeacons offers for each app from Piggate
 - Integration with third party library for range beacons through callback bridges
 
 Sample Projects
 ---------------
+
+There are three implemented examples using our SDK:
+
+- PiggateLogin: sample application that implements the login and register into the server and shows offers when a beacon is near
+- PiggateLogin App: PiggateLogin example using the application class to range beacons and show push notifications since the application is oppened and while the application is alive
+- PiggateLogin Service: PiggateLogin example using a service to range beacons and show push notifications with a service that is always running even if the application is killed
+
 To run our sample apps, you need to import this repo as a standalone android project:
 
 1. Clone this repository onto your machine.
-2. Import this repository's project with Android Studio (File > Import Project > `PiggateLogin` folder). The project has dependencies on the Asynchronous Http Client and on Estimote SDK, for more detailed info please see at this link(https://github.com/loopj/android-async-http) or this one(https://github.com/Estimote/Android-SDK) ,respectively. 
+2. Import this repository's project with Android Studio (File > Import Project > `sample` folder). The project has dependencies on the Asynchronous Http Client and on Estimote SDK, for more detailed info please see at this link(https://github.com/loopj/android-async-http) or this one(https://github.com/Estimote/Android-SDK),respectively. 
 3. Specify the following in `res/values/strings.xml` of each sample project:
 * <code>piggate_app_id</code> and <code>piggate_uuid_region</code>(optional)
 4. Specify the following in `AndroidManifest.xml`of each sample project:
-* <code>&lt;meta-data android:name="com.iternox.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/&gt;</code> and <code>&lt;meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/&gt;</code>(optional)
+* <code><meta-data android:name="com.iternox.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/></code> and <code><meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/></code>(optional)
 5. Build and run the sample apps using Android Studio.
 
 
@@ -36,7 +44,7 @@ GIVE FEEDBACK
 -------------
 Please report bugs or issues at repository
 
-Ask questions on Stack Overflow (http://piggate.com/ask)
+Ask questions on Stack Overflow (http://stackoverflow.piggate.com)
 
 
 LICENSE
