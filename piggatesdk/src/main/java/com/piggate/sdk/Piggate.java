@@ -32,7 +32,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.os.Looper;
-import android.util.Log;
 
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.loopj.android.http.PersistentCookieStore;
@@ -871,15 +870,12 @@ public class Piggate{
             @Override
             public void onFailure(int statusCode, Header[] headers,  Throwable e, JSONArray response) {
                 //Unused
-                Log.d("TEST", "Error in BuyRequest");
             }
 
             //Handle the request error for JSONObject
             //Take the error message to return to the user
             @Override
             public void onFailure(int statusCode, Header[] headers,Throwable throwable, JSONObject response){
-
-                Log.d("TEST", "Error in BuyRequest");
 
                 String msg="";
 
@@ -903,8 +899,6 @@ public class Piggate{
             //Return a message to the user
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
-                Log.d("TEST", "Success in BuyRequest");
 
                 String msg="";
                 JSONObject obj=null;
@@ -935,12 +929,9 @@ public class Piggate{
             //Handle the request success for JSONArray
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-
-                Log.d("TEST", "Success in BuyRequest");
+                //Unused
             }
         };
-
-        Log.d("TEST", "Exiting BuyRequest. request value: " + request);
 
         return request;
     }
@@ -990,22 +981,23 @@ public class Piggate{
     public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, Context context){
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
-        Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
+        Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object for Stripe validator
 
-        if ( card.validateCard() ) {
+        if ( card.validateCard() ) { //Validate the credit card
 
             final ProgressDialog loadingDialog = ProgressDialog.show(context, "Validating", "Creating token...", true);
 
+            //Create the Stripe token
             new Stripe().createToken(
                     card,
                     PUBLISHABLE_KEY,
                     new TokenCallback() {
-                        public void onSuccess(Token token) {
+                        public void onSuccess(Token token) { //If create the token successfully
                             creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object
                             addCreditCard(creditCard); //Add the credit card to the ArrayList
                             loadingDialog.dismiss();
                         }
-                        public void onError(Exception error) {
+                        public void onError(Exception error) { //If there's an error creating the token
                             //Handle the error
                             loadingDialog.dismiss();
                         }
@@ -1024,20 +1016,21 @@ public class Piggate{
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
 
-        if ( card.validateCard() ) {
+        if ( card.validateCard() ) { //Validate the credit card
 
             final ProgressDialog loadingDialog = ProgressDialog.show(context, title, msg, true);
 
+            //Create the Stripe token
             new Stripe().createToken(
                     card,
                     PUBLISHABLE_KEY,
                     new TokenCallback() {
-                        public void onSuccess(Token token) {
+                        public void onSuccess(Token token) { //If create the token successfully
                             creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object
                             addCreditCard(creditCard); //Add the credit card to the ArrayList
                             loadingDialog.dismiss();
                         }
-                        public void onError(Exception error) {
+                        public void onError(Exception error) { //If there's an error creating the token
                             //Handle the error
                             loadingDialog.dismiss();
                         }
