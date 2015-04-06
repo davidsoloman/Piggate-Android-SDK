@@ -5,12 +5,12 @@ This open-source library allows you to integrate Piggate into your Android app. 
 
 Learn more about about the documentation, integrating the SDK into your app, accessing source code, and more at http://documentation.piggate.com/
 
-Introduction
+## Introduction
 ------------
 
 We built several sample apps demonstrating how to use the Piggate SDK for Android. Before importing this library into your app, we recommend that you run these sample apps to become familiar with its functionality and customizations.
 
-Features
+## Features
 --------
 - Range beacons nearby
 - Do login and register with Piggate
@@ -18,7 +18,30 @@ Features
 - Getting iBeacons offers for each app from Piggate
 - Integration with third party library for range beacons through callback bridges
 
-Sample Projects
+## How to use
+-----------
+
+Add the following into the main build.gradle:
+
+```
+repositories {
+	maven {
+	    url "https://jitpack.io"
+	}
+}
+```
+
+Add and compile our SDK library into your dependencies
+
+```
+dependencies {
+	compile 'com.github.piggate:Piggate-Android-SDK:v0.2'
+}
+```
+
+With this simple steps you can use the Piggate SDK in your application.
+
+## Sample Projects
 ---------------
 
 There are three implemented examples using our SDK:
@@ -26,6 +49,7 @@ There are three implemented examples using our SDK:
 - PiggateLogin: sample application that implements the login and register into the server and shows offers when a beacon is near
 - PiggateLogin App: PiggateLogin example using the application class to range beacons and show push notifications since the application is oppened and while the application is alive
 - PiggateLogin Service: PiggateLogin example using a service to range beacons and show push notifications with a service that is always running even if the application is killed
+- PiggateCompleteExample: complete example for the SDK. Includes the login and register activities, the logged activity with a list of the near offers, and a last activity for buy a single offer validating a credit card and doing a request to our server.
 
 To run our sample apps, you need to import this repo as a standalone android project:
 
@@ -38,16 +62,14 @@ To run our sample apps, you need to import this repo as a standalone android pro
 5. Build and run the sample apps using Android Studio.
 
 
-
-
-GIVE FEEDBACK
+## GIVE FEEDBACK
 -------------
 Please report bugs or issues at repository
 
 Ask questions on Stack Overflow (http://stackoverflow.piggate.com)
 
 
-LICENSE
+## LICENSE
 -------
 
 Except as otherwise noted, the Piggate SDK for Android is licensed under the Apache License, Version 2.0 (http://www.apache.org/licenses/LICENSE-2.0.html).
