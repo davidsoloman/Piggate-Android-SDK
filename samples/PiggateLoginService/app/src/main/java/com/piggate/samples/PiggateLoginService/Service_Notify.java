@@ -24,11 +24,17 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
 import android.os.IBinder;
 import android.os.SystemClock;
+import android.util.Log;
 
 import com.piggate.sdk.Piggate;
 import com.piggate.sdk.PiggateBeacon;
+
+import org.apache.http.Header;
+import org.json.JSONArray;
+import org.json.JSONObject;
 
 import java.util.ArrayList;
 
@@ -39,6 +45,7 @@ and keep it up when the application is killed or the phone is rebooted
 public class Service_Notify extends Service{
 
     Piggate _piggate; //Create an object of the Piggate class
+    static String notificationMsg = "Click to see the offer"; //Default message to show in the notification
 
     @Override
     public void onCreate() {
@@ -80,7 +87,7 @@ public class Service_Notify extends Service{
             @Override
             public void GetNewBeacons(ArrayList<PiggateBeacon> beacons) {
                 //Do a post notification to the notification bar when a beacon (an offer) is near with a custom message
-                _piggate.postNotification("New offer!", "Click to see the offer", Activity_Main.class, R.drawable.ic_launcher);
+                _piggate.postNotification("New offer!", notificationMsg, Activity_Main.class, R.drawable.ic_launcher);
             }
 
             //Handles the actions where beacons are detected

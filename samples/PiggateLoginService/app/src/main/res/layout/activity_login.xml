@@ -106,7 +106,7 @@
 
                 <EditText
                     android:id="@+id/editText1"
-                    android:layout_width="300dp"
+                    android:layout_width="230dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text=""
@@ -128,7 +128,7 @@
 
                 <EditText
                     android:id="@+id/editText2"
-                    android:layout_width="300dp"
+                    android:layout_width="230dp"
                     android:text=""
                     android:layout_marginTop="10dp"
                     android:layout_height="wrap_content"
@@ -151,7 +151,7 @@
                 android:background="#80FFFFFF"
                 android:text="Sign In"
                 android:textColor="#FFF"
-                android:layout_marginRight="30dp"
+                android:layout_marginRight="45dp"
                 android:layout_gravity="right" />
 
 

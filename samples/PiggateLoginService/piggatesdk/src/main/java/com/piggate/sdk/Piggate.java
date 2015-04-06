@@ -24,6 +24,7 @@ import android.app.Application;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.ProgressDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
@@ -37,6 +38,10 @@ import com.loopj.android.http.PersistentCookieStore;
 import com.loopj.android.http.RequestParams;
 import com.piggate.sdk.bridges.BaseBridge;
 import com.piggate.sdk.bridges.PiggateEstimoteBridge;
+import com.stripe.android.Stripe;
+import com.stripe.android.TokenCallback;
+import com.stripe.android.model.Card;
+import com.stripe.android.model.Token;
 
 import org.apache.http.Header;
 import org.json.JSONArray;
@@ -61,10 +66,12 @@ public class Piggate{
     private Service _service; //Service where Piggate is used
     private Context _context; //Context where Piggate is used
     private BaseBridge _bridge; //BaseBridge is the base class of PiggateEstimoteBridge
+    private ArrayList<PiggateCard> _creditCards = new ArrayList<PiggateCard>(); //ArrayList of Piggate credit cards
 
     NotificationManager notificationManager; //For the notifications
     PersistentCookieStore _cookieStore; //For saving the cookies of the application
     String APP_ID; //ID of the application
+    public static final String PUBLISHABLE_KEY = "pk_test_xTXA355DkIqgf5EMeKBoQdZs";
 
     //Return the context of the application
     public Context getApplicationContext(){
@@ -140,6 +147,30 @@ public class Piggate{
     //Do post notifications without force
     public void postNotification(String title, String msg ,Class myClass, int resource, Bundle extras) {
         postNotification(title,msg,myClass,resource,extras,false);
+    }
+
+    //Get the ArrayLists of credit cards
+    public ArrayList<PiggateCard> get_creditCards() {
+        return _creditCards;
+    }
+
+    //Set the ArrayLists of credit cards
+    public void set_creditCards(ArrayList<PiggateCard> _creditCards) {
+        this._creditCards = _creditCards;
+    }
+
+    //Add a credit card to the ArrayList of credit cards
+    public void addCreditCard(PiggateCard creditCard) {
+
+        boolean exists = false;
+
+        //Check if the credit card exists
+        for(int i=0; i<this._creditCards.size(); i++)
+            if(creditCard.getTokenID().equals(this._creditCards.get(i).getTokenID()))
+                exists = true;
+
+        if(exists == false) //If is new, add it to the array
+            this._creditCards.add(creditCard);
     }
 
     /*
@@ -582,6 +613,7 @@ public class Piggate{
     //do a GET request to the server to get the offers for an existing beacon
     public Request RequestOffers(final PiggateBeacon beacon){
         final Request request=new Request(this);
+
         request._method="GET"; //Define the request method
         request._params=null; //Define the params
         request._url="client/get/ibeacon/major/"+beacon.getMajor()+"/minor/"+beacon.getMinor(); //Define the url
@@ -737,5 +769,276 @@ public class Piggate{
             }
         };
         return request;
+    }
+
+    //Function to do the request and get the notification message
+    public Request requestGetNotification(){
+        final Request request=new Request(this);
+        request._method="GET"; //define the request method
+        request._params=null; //define the params
+        request._url="client/get/notification"; //define the url to do the request
+
+        //Handle the request events (if the request fail or is correct)
+        request._rest_callback=new JsonHttpResponseHandler() {
+
+            //Handle the request error for JSONArray
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, JSONArray response) {
+                //Unused
+            }
+
+            //Handle the request error for JSONObject
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+                String msg = "";
+                JSONObject obj = null;
+
+                // If the response is JSONObject instead of expected JSONArray
+                if(response!=null){
+
+                    try {
+                        msg = response.getString("error");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                }
+
+                if (request._callBack != null) {
+                    request._callBack.onError(statusCode, headers,msg, (JSONObject)null);
+                }
+            }
+
+            //Handle the request success for JSONObject
+            //Return a message to the user
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                String msg = "";
+                JSONObject obj = null;
+
+                // If the response is JSONObject instead of expected JSONArray
+                if(response!=null){
+                    try {
+                        obj = response.getJSONObject("data");
+
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                    try {
+                        msg = response.getString("success");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                }
+
+                if (request._callBack != null) {
+                    request._callBack.onComplete(statusCode, headers,msg, obj);
+                }
+            }
+
+            //Handle the request success for JSONArray
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                //Unused
+            }
+        };
+        return request;
+    }
+
+    //Function to do the buy request
+    //Send the card token, offer ID and ammount to pay
+    public Request BuyRequest(RequestParams params){
+        final Request request=new Request(this);
+
+        request._method="POST"; //define the request method
+        //params.put("app", APP_ID);
+        request._params=params; //define the params
+        request._url="stripe/charge"; //define the url to do the request
+
+        //Handle the request events (if the request fail or is correct)
+        request._rest_callback=new JsonHttpResponseHandler() {
+
+            //Handle the request error for JSONArray
+            @Override
+            public void onFailure(int statusCode, Header[] headers,  Throwable e, JSONArray response) {
+                //Unused
+            }
+
+            //Handle the request error for JSONObject
+            //Take the error message to return to the user
+            @Override
+            public void onFailure(int statusCode, Header[] headers,Throwable throwable, JSONObject response){
+
+                String msg="";
+
+                if(response!=null){
+
+                    try {
+                        msg = response.getString("error");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                }
+                if(request._callBack!=null){
+                    request._callBack.onError(statusCode, headers,msg,(JSONObject)null);
+                }
+            }
+
+            //Handle the request success for JSONObject
+            //Return a message to the user
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                String msg="";
+                JSONObject obj=null;
+                // If the response is JSONObject instead of expected JSONArray
+                if(response!=null){
+                    try {
+                        obj = response.getJSONObject("data");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                    try {
+                        msg = response.getString("success");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                }
+                if(request._callBack!=null){
+                    request._callBack.onComplete(statusCode, headers,msg,obj);
+                }
+            }
+
+            //Handle the request success for JSONArray
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                //Unused
+            }
+        };
+
+        return request;
+    }
+
+    //Get the offers array using the PiggateOffers function
+    public ArrayList<PiggateOffers> getOffers(){
+        return PiggateOffers.getOffers();
+    }
+
+    //Function that search for nearby beacons and request to the server to refresh the offers
+    synchronized public void refreshOffers(){
+        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons(); //Get the pending nearby iBeacons
+        if(beacons.size()>0) {
+            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each iBeacon
+                RequestOffers(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
+
+                    //Method onComplete for JSONObject
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onError for JSONObject
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onComplete for JSONArray
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        //Unused
+                    }
+
+                    //Method onError for JSONArray
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        //Unused
+                    }
+                }).exec();
+            }
+        }
+    }
+
+    //Use the Stripe library to validate a credit card
+    //Need <uses-permission android:name="android.permission.INTERNET"/> in AndroidManifest
+    public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, Context context){
+
+        final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
+        Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object for Stripe validator
+
+        if ( card.validateCard() ) { //Validate the credit card
+
+            final ProgressDialog loadingDialog = ProgressDialog.show(context, "Validating", "Creating token...", true);
+
+            //Create the Stripe token
+            new Stripe().createToken(
+                    card,
+                    PUBLISHABLE_KEY,
+                    new TokenCallback() {
+                        public void onSuccess(Token token) { //If create the token successfully
+                            creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object
+                            addCreditCard(creditCard); //Add the credit card to the ArrayList
+                            loadingDialog.dismiss();
+                        }
+                        public void onError(Exception error) { //If there's an error creating the token
+                            //Handle the error
+                            loadingDialog.dismiss();
+                        }
+                    });
+
+            return true; //Return true if card is validated
+        }
+        else
+            return false; //Return false if card is not validated
+    }
+
+    //Use the Stripe library to validate a credit card
+    //Need <uses-permission android:name="android.permission.INTERNET"/> in AndroidManifest
+    public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, Context context, String title, String msg){
+
+        final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
+        Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
+
+        if ( card.validateCard() ) { //Validate the credit card
+
+            final ProgressDialog loadingDialog = ProgressDialog.show(context, title, msg, true);
+
+            //Create the Stripe token
+            new Stripe().createToken(
+                    card,
+                    PUBLISHABLE_KEY,
+                    new TokenCallback() {
+                        public void onSuccess(Token token) { //If create the token successfully
+                            creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object
+                            addCreditCard(creditCard); //Add the credit card to the ArrayList
+                            loadingDialog.dismiss();
+                        }
+                        public void onError(Exception error) { //If there's an error creating the token
+                            //Handle the error
+                            loadingDialog.dismiss();
+                        }
+                    });
+
+            return true; //Return true if card is validated
+        }
+        else
+            return false; //Return false if card is not validated
     }
 }

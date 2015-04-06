@@ -24,6 +24,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -132,42 +133,6 @@ public class Activity_Logged extends Activity {
         }
     }
 
-    //Function that search for nearby beacons and request to the server for obtain the offers
-    synchronized public void callOffers(){
-        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons();
-        if(beacons.size()>0) {
-            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each Beacon
-
-                _piggate.RequestOffers(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
-
-                    //Method onComplete for JSONObject
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONObject
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onComplete for JSONArray
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONArray
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-                }).exec();
-            }
-        }
-    }
-
     //Method onCreate of the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -239,6 +204,34 @@ public class Activity_Logged extends Activity {
                 }
             }
         });
+
+        if(checkInternetConnection() == true) { //If the internet connection is working
+            //Get the notification message
+            _piggate.requestGetNotification().setListenerRequest(new Piggate.PiggateCallBack() {
+                @Override
+                public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
+                    Service_Notify.notificationMsg = data.optString("message");
+                }
+
+                @Override
+                public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
+                    Service_Notify.notificationMsg = "Click to see the offer"; //Default message if there's an error
+                }
+
+                @Override
+                public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
+                    //Unused
+                }
+
+                @Override
+                public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
+                    //Unused
+                }
+            }).exec();
+        }
+        else{
+            Service_Notify.notificationMsg = "Click to see the offer"; //Default message if there's a network error
+        }
     }
 
     //Method onStart of the activity
@@ -269,13 +262,13 @@ public class Activity_Logged extends Activity {
         timer.schedule(new TimerTask() { //Load offers data from the server using a request
             @Override
             public void run() {
-                callOffers();
+                _piggate.refreshOffers(); //Refresh the offers for every Beacon calling the server every "timer" seconds
             }
         }, 0, 10000);
         timer2.schedule(new TimerTask() { //The offers were shown by timer callback
             @Override
             public void run() {
-                showUINotification(PiggateOffers.getOffers()); //Show notifications where are offers nearby
+                showUINotification(_piggate.getOffers()); //Show notifications where are offers nearby
             }
         }, 0, 15000);
     }

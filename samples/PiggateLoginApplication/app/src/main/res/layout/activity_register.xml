@@ -22,7 +22,7 @@
     android:layout_height="match_parent"
     android:background="#7EC2D1"
     android:orientation="vertical"
-    tools:context="com.iternox.piggate.samples.PiggateLoginApplication.Activity_SingUp"
+    tools:context="com.iternox.piggate.samples.PiggateLogin.Activity_SingUp"
     tools:ignore="MergeRootFrame" >
 
     <RelativeLayout
@@ -108,7 +108,7 @@
 
                 <EditText
                     android:id="@+id/editText1"
-                    android:layout_width="300dp"
+                    android:layout_width="230dp"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:text=""
@@ -132,7 +132,7 @@
 
                 <EditText
                     android:id="@+id/editText2"
-                    android:layout_width="300dp"
+                    android:layout_width="230dp"
                     android:text=""
                     android:layout_marginTop="10dp"
                     android:layout_height="wrap_content"
@@ -156,7 +156,7 @@
                 android:background="#80FFFFFF"
                 android:text="Sign Up"
                 android:textColor="#FFF"
-                android:layout_marginRight="30dp"
+                android:layout_marginRight="45dp"
                 android:layout_gravity="right" />
 
         </LinearLayout>

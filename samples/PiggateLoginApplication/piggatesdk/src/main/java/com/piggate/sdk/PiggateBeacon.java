@@ -202,7 +202,7 @@ public class PiggateBeacon {
             //Check if the beacon is already into the pending beacons
             for(int x=0; x<bar.size(); x++) {
                 for(int y=0; y<pending.size(); y++){
-                    if(bar.get(x).equals(pending.equals(y)))
+                    if(bar.get(x).toString().equals(pending.get(y).toString()))
                         exist = true;
                 }
                 if(exist != true)

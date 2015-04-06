@@ -134,42 +134,6 @@ public class Activity_Logged extends Activity {
         }
     }
 
-    //Function that search for nearby beacons and request to the server for obtain the offers
-    synchronized public void callOffers(){
-        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons();
-        if(beacons.size()>0) {
-            for(int x=0;x<beacons.size();x++) {//Load offers data from the server using a GET request for each Beacon
-
-                _piggate.RequestOffers(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
-
-                    //Method onComplete for JSONObject
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONObject
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onComplete for JSONArray
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONArray
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-                }).exec();
-            }
-        }
-    }
-
     //Method onCreate of the activity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -270,13 +234,13 @@ public class Activity_Logged extends Activity {
         timer.schedule(new TimerTask() { //Load offers data from the server using a request
             @Override
             public void run() {
-                callOffers();
+                _piggate.refreshOffers();
             }
         }, 0, 3000);
         timer2.schedule(new TimerTask() { //The offers were shown by timer callback
             @Override
             public void run() {
-                showUINotification(PiggateOffers.getOffers()); //Show notifications where are offers nearby
+                showUINotification(_piggate.getOffers()); //Show notifications where are offers nearby
             }
         }, 0, 15000);
     }
