@@ -1,7 +1,7 @@
 apply plugin: 'com.android.library'
 apply plugin: 'android-maven'
 
-/*buildscript{
+buildscript{
     repositories {
         mavenCentral()
         flatDir {
@@ -11,7 +11,7 @@ apply plugin: 'android-maven'
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.+'
     }
-}*/
+}
 
 android {
     compileSdkVersion 21
