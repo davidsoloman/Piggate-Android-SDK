@@ -8,6 +8,9 @@ buildscript{
             dirs 'libs'
         }
     }
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.0.+'
+    }
 }
 
 android {
