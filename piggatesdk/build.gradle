@@ -1,8 +1,7 @@
 apply plugin: 'com.android.library'
-apply plugin: 'java'
-apply plugin: 'maven'
+apply plugin: 'android-maven'
 
-buildscript{
+/*buildscript{
     repositories {
         mavenCentral()
         flatDir {
@@ -12,7 +11,7 @@ buildscript{
     dependencies {
         classpath 'com.android.tools.build:gradle:1.0.+'
     }
-}
+}*/
 
 android {
     compileSdkVersion 21
@@ -47,13 +46,4 @@ task sourcesJar(type: Jar) {
 }
 artifacts {
     archives sourcesJar
-}
-
-// uncomment to build a jar file in addition to the default aar file
-android.libraryVariants.all { variant ->
-    def name = variant.buildType.name
-    def task = project.tasks.create "jar${name.capitalize()}", Jar
-    task.dependsOn variant.javaCompile
-    task.from variant.javaCompile.destinationDir
-    artifacts.add('archives', task);
 }
