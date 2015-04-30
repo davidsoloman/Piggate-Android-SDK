@@ -56,7 +56,7 @@ import java.util.concurrent.TimeUnit;
 /*
 Piggate class: the main class of the Piggate SDK
 -------------------------------------------------
-We use an object of this class to do the scanning, request and notifications with beacons
+We use an object of this class to do the scanning, requests and notifications with beacons
 The constructors of this object contains the Estimote bridge to use the functions of the Estimote SDK
 */
 public class Piggate{
@@ -67,11 +67,12 @@ public class Piggate{
     private Context _context; //Context where Piggate is used
     private BaseBridge _bridge; //BaseBridge is the base class of PiggateEstimoteBridge
     private ArrayList<PiggateCard> _creditCards = new ArrayList<PiggateCard>(); //ArrayList of Piggate credit cards
+    private ArrayList<PiggateOffers> _offersToExchange = new ArrayList<>();
 
     NotificationManager notificationManager; //For the notifications
     PersistentCookieStore _cookieStore; //For saving the cookies of the application
     String APP_ID; //ID of the application
-    public static final String PUBLISHABLE_KEY = "pk_test_xTXA355DkIqgf5EMeKBoQdZs";
+    public static final String PUBLISHABLE_KEY = "pk_test_BN86VnxiMBHkZtzPmpykc56g";
 
     //Return the context of the application
     public Context getApplicationContext(){
@@ -136,12 +137,12 @@ public class Piggate{
 
     //Do notifications whithout an extras bundle
     public void postNotification(String title, String msg ,Class myClass, int resource,Boolean force) {
-        postNotification(title,msg,myClass,resource,null,force);
+        postNotification(title, msg, myClass, resource, null, force);
     }
 
     //Do notifications without an extras bundle and without force
     public void postNotification(String title, String msg ,Class myClass, int resource) {
-        postNotification(title,msg,myClass,resource,(Bundle)null);
+        postNotification(title, msg, myClass, resource, (Bundle) null);
     }
 
     //Do post notifications without force
@@ -157,6 +158,14 @@ public class Piggate{
     //Set the ArrayLists of credit cards
     public void set_creditCards(ArrayList<PiggateCard> _creditCards) {
         this._creditCards = _creditCards;
+    }
+
+    public ArrayList<PiggateOffers> get_offersToExchange() {
+        return _offersToExchange;
+    }
+
+    public void set_offersToExchange(ArrayList<PiggateOffers> _offersToExchange) {
+        this._offersToExchange = _offersToExchange;
     }
 
     //Add a credit card to the ArrayList of credit cards
@@ -336,9 +345,18 @@ public class Piggate{
             _bridge.onActivityResult(requestCode, resultCode, data);
     }
 
-    //Function to do the request for sign up with a new user
-    //do a POST request to the server and register the new user if does not exist
+    /*
+    RequestNewUser
+    ---------------
+    Do a POST request to the server and register the new user if does not exist
+    ---------------------------------------------------------------------------
+    Request params:
+        - "email" - User email
+        - "password" - User password
+        - "app" - Application identifier
+     */
     public Request RequestNewUser(RequestParams params){
+
         final Request request=new Request(this);
         request._method="POST"; //define the request method
         params.put("app", APP_ID);
@@ -365,19 +383,12 @@ public class Piggate{
             //Take the error message to return to the user
             @Override
             public void onFailure(int statusCode, Header[] headers,Throwable throwable, JSONObject response){
-
                 String msg="";
-
                 if(response!=null){
-
                     try {
                         msg = response.getString("error");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 if(request._callBack!=null){
                     request._callBack.onError(statusCode, headers,msg,(JSONObject)null);
@@ -388,7 +399,6 @@ public class Piggate{
             //Return a message to the user
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-
                 String msg="";
                 JSONObject obj=null;
                 // If the response is JSONObject instead of expected JSONArray
@@ -396,20 +406,12 @@ public class Piggate{
                     try {
                         obj = response.getJSONObject("data");
                         PiggateUser.getInstance(obj.getString("_id"),obj.getString("email"));
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                     try {
                         msg = response.getString("success");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 if(request._callBack!=null){
                     request._callBack.onComplete(statusCode, headers,msg,obj);
@@ -419,14 +421,21 @@ public class Piggate{
             //Handle the request success for JSONArray
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-
             }
         };
         return request;
     }
 
-    //Function to do the request for sign in into the application
-    //do a POST request to the server and login with a registered user
+    /*
+    RequestOpenSession
+    -------------------
+    do a POST request to the server and login with a registered user
+    ------------------------------------------------------------------------
+    Request params:
+        - "email" - User email
+        - "password" - User password
+        - "app" - Application identifier
+     */
     public Request RequestOpenSession(RequestParams params){
         final Request request=new Request(this);
         request._method="POST"; //define the request method
@@ -456,15 +465,10 @@ public class Piggate{
                 String msg="";
 
                 if(response!=null){
-
                     try {
                         msg = response.getString("error");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 PiggateUser.getInstance(null,null);
                 if(request._callBack!=null){
@@ -484,20 +488,12 @@ public class Piggate{
                     try {
                         obj = response.getJSONObject("data");
                         PiggateUser.getInstance(obj.getString("_id"),obj.getString("email"));
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                     try {
                         msg = response.getString("success");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
 
                 if(request._callBack!=null){
@@ -515,8 +511,13 @@ public class Piggate{
         return request;
     }
 
-    //Function to do the request for close a opened session
-    //do a GET request to the server and close the session of the logged user
+    /*
+    RequestCloseSession
+    -------------------
+    do a GET request to the server and close the session of the logged user
+    ------------------------------------------------------------------------
+    Request params: none
+     */
     public Request RequestCloseSession(){
         final Request request=new Request(this);
         request._method="GET"; //define the request method
@@ -539,15 +540,10 @@ public class Piggate{
                 JSONObject obj = null;
                 // If the response is JSONObject instead of expected JSONArray
                 if(response!=null){
-
                     try {
                         msg = response.getString("error");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 PiggateUser.getInstance(null,null);
 
@@ -566,20 +562,12 @@ public class Piggate{
                 if(response!=null){
                     try {
                         obj = response.getString("data");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                     try {
                         msg = response.getString("success");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 PiggateUser.getInstance(null,null);
 
@@ -609,8 +597,13 @@ public class Piggate{
         return timeUnit.convert(diffInMillies,TimeUnit.MILLISECONDS);
     }
 
-    //Function to do the request for get the offers
-    //do a GET request to the server to get the offers for an existing beacon
+    /*
+    RequestOffers
+    --------------
+    Do a GET request to the server to get the offers for an existing beacon
+    ------------------------------------------------------------------------
+    Request params: none
+     */
     public Request RequestOffers(final PiggateBeacon beacon){
         final Request request=new Request(this);
 
@@ -630,17 +623,14 @@ public class Piggate{
             //Return a message to the user
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+
                 String msg = "";
                 JSONObject obj = null;
                 if(response!=null){ // If the response is JSONObject instead of expected JSONArray
                     try {
                         msg = response.getString("error");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 if (request._callBack != null) {
                     PiggateBeacon.addPendingBeacons(new ArrayList<>(Arrays.asList(beacon)));
@@ -652,31 +642,27 @@ public class Piggate{
             //Return a message to the user
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
                 String msg = "";
-                JSONArray obj = null;
+                JSONObject obj = null;
+                JSONArray offers = null;
                 // If the response is JSONObject instead of expected JSONArray
                 if(response!=null){
                     try {
-                        obj = response.getJSONArray("data");
-                    } catch (JSONException a) {
+                        obj = response.getJSONObject("data");
+                        offers = obj.getJSONArray("offers");
 
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                     try {
                         msg = response.getString("success");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 if (request._callBack != null) {
-                    request._callBack.onComplete(statusCode, headers,msg, (JSONArray)obj);
+                    request._callBack.onComplete(statusCode, headers,msg, (JSONArray)offers);
                     //Add the offers to the registry
-                    PiggateOffers.addOffers(obj);
+                    PiggateOffers.addOffers(offers);
                 }
             }
 
@@ -689,15 +675,21 @@ public class Piggate{
         return request;
     }
 
-    //Function to do the GET request for get an user
-    public Request RequestUser(){
-        final Request request=new Request(this);
-        request._method="GET"; //Define the request method
-        request._params=null; //Define the params
-        request._url="client"; //Define the url
+    /*
+    RequestUser
+    -----------
+    Function to do the GET request for get an user
+    ------------------------------------------------
+    Request params: none
+     */
+    public Request RequestUser() {
+        final Request request = new Request(this);
+        request._method = "GET"; //Define the request method
+        request._params = null; //Define the params
+        request._url = "client"; //Define the url
 
         //Handle the request events (if the request fail or is correct)
-        request._rest_callback=new JsonHttpResponseHandler() {
+        request._rest_callback = new JsonHttpResponseHandler() {
 
             //Handle the request error for JSONArray
             @Override
@@ -713,22 +705,18 @@ public class Piggate{
                 String msg = "";
                 JSONObject obj = null;
                 // If the response is JSONObject instead of expected JSONArray
-                if(response!=null){
-
+                if (response != null) {
                     try {
                         msg = response.getString("error");
-                        PiggateUser.getInstance(null,null);
+                        PiggateUser.getInstance(null, null);
 
                     } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
+                    } catch (NullPointerException a) {
                     }
                 }
 
                 if (request._callBack != null) {
-                    request._callBack.onError(statusCode, headers,msg, (JSONObject)null);
+                    request._callBack.onError(statusCode, headers, msg, (JSONObject) null);
                 }
             }
 
@@ -738,27 +726,21 @@ public class Piggate{
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 String msg = "";
                 JSONObject obj = null;
-                if(response!=null){ // If the response is JSONObject instead of expected JSONArray
+                if (response != null) { // If the response is JSONObject instead of expected JSONArray
                     try {
                         obj = response.getJSONObject("data");
-                        PiggateUser.getInstance(obj.getString("_id"),obj.getString("email"));
+                        PiggateUser.getInstance(obj.getString("_id"), obj.getString("email"));
                     } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
+                    } catch (NullPointerException a) {
                     }
                     try {
                         msg = response.getString("success");
                     } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
+                    } catch (NullPointerException a) {
                     }
                 }
                 if (request._callBack != null) {
-                    request._callBack.onComplete(statusCode, headers,msg, obj);
+                    request._callBack.onComplete(statusCode, headers, msg, obj);
                 }
             }
 
@@ -771,8 +753,14 @@ public class Piggate{
         return request;
     }
 
-    //Function to do the request and get the notification message
-    public Request requestGetNotification(){
+    /*
+    RequestGetNotification
+    -----------
+    Function to do the request and get the notification message
+    ------------------------------------------------
+    Request params: none
+     */
+    public Request RequestGetNotification(){
         final Request request=new Request(this);
         request._method="GET"; //define the request method
         request._params=null; //define the params
@@ -795,15 +783,10 @@ public class Piggate{
 
                 // If the response is JSONObject instead of expected JSONArray
                 if(response!=null){
-
                     try {
                         msg = response.getString("error");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
 
                 if (request._callBack != null) {
@@ -817,26 +800,16 @@ public class Piggate{
             public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                 String msg = "";
                 JSONObject obj = null;
-
                 // If the response is JSONObject instead of expected JSONArray
                 if(response!=null){
                     try {
                         obj = response.getJSONObject("data");
-
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                     try {
                         msg = response.getString("success");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
 
                 if (request._callBack != null) {
@@ -853,15 +826,173 @@ public class Piggate{
         return request;
     }
 
-    //Function to do the buy request
-    //Send the card token, offer ID and ammount to pay
-    public Request BuyRequest(RequestParams params){
+    /*
+    RequestBuy
+    -----------
+    Send the card token, offer ID, ammount and currency to pay
+    ------------------------------------------------
+    Request params:
+        - "stripeToken" - The token created for the credit card
+        - "amount" - Amount to pay
+        - "offerID" - Identifier for the offer
+        - "currency" - Type of coin to pay
+     */
+    public Request RequestBuy(RequestParams params) {
+        final Request request = new Request(this);
+
+        request._method = "POST"; //define the request method
+        request._params = params; //define the params
+        request._url = "stripe/charge"; //define the url to do the request
+
+        //Handle the request events (if the request fail or is correct)
+        request._rest_callback = new JsonHttpResponseHandler() {
+
+            //Handle the request error for JSONArray
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, JSONArray response) {
+                //Unused
+            }
+
+            //Handle the request error for JSONObject
+            //Take the error message to return to the user
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+
+                String msg = "";
+                if (response != null) {
+                    try {
+                        msg = response.getString("error");
+                    } catch (JSONException a) {
+                    } catch (NullPointerException a) {
+                    }
+                }
+                if (request._callBack != null) {
+                    request._callBack.onError(statusCode, headers, msg, (JSONObject) null);
+                }
+            }
+
+            //Handle the request success for JSONObject
+            //Return a message to the user
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                String msg = "";
+                JSONObject obj = null;
+                // If the response is JSONObject instead of expected JSONArray
+                if (response != null) {
+                    try {
+                        obj = response.getJSONObject("data");
+                    } catch (JSONException a) {
+                    } catch (NullPointerException a) {
+                    }
+                    try {
+                        msg = response.getString("success");
+                    } catch (JSONException a) {
+                    } catch (NullPointerException a) {
+                    }
+                }
+                if (request._callBack != null) {
+                    request._callBack.onComplete(statusCode, headers, msg, obj);
+                }
+            }
+
+            //Handle the request success for JSONArray
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                //Unused
+            }
+        };
+
+        return request;
+    }
+
+    /*
+    RequestGetExchange
+    -----------
+    Get all the purchased offers pending to exchange
+    ------------------------------------------------
+    Request params: none
+     */
+    public Request RequestGetExchange(){
+        final Request request=new Request(this);
+        request._method="GET"; //define the request method
+        request._params=null; //define the params
+        request._url="client/exchange"; //define the url to do the request
+
+        //Handle the request events (if the request fail or is correct)
+        request._rest_callback=new JsonHttpResponseHandler() {
+
+            //Handle the request error for JSONArray
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, JSONArray response) {
+                //Unused
+            }
+
+            //Handle the request error for JSONObject
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+                String msg = "";
+                JSONObject obj = null;
+
+                // If the response is JSONObject instead of expected JSONArray
+                if(response!=null){
+                    try {
+                        msg = response.getString("error");
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
+                }
+
+                if (request._callBack != null) {
+                    request._callBack.onError(statusCode, headers,msg, (JSONObject)null);
+                }
+            }
+
+            //Handle the request success for JSONObject
+            //Return a message to the user
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                String msg = "";
+                JSONArray obj = null;
+                // If the response is JSONObject instead of expected JSONArray
+                if(response!=null){
+                    try {
+                        obj = response.getJSONArray("data");
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
+                    try {
+                        msg = response.getString("success");
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
+                }
+
+                if (request._callBack != null) {
+                    request._callBack.onComplete(statusCode, headers,msg, obj);
+                }
+            }
+
+            //Handle the request success for JSONArray
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                //Unused
+            }
+        };
+        return request;
+    }
+
+    /*
+    RequestExchange
+    -----------
+    Function to exchange a purchased offer
+    ----------------------------------------
+    Request params:
+        - "code_unlock" - The unlock code to exchange a purchased offer
+     */
+    public Request RequestExchange(RequestParams params, String offerID){
         final Request request=new Request(this);
 
         request._method="POST"; //define the request method
-        //params.put("app", APP_ID);
         request._params=params; //define the params
-        request._url="stripe/charge"; //define the url to do the request
+        request._url="client/exchange/" + offerID; //define the url to do the request with the offer ID
 
         //Handle the request events (if the request fail or is correct)
         request._rest_callback=new JsonHttpResponseHandler() {
@@ -878,17 +1009,11 @@ public class Piggate{
             public void onFailure(int statusCode, Header[] headers,Throwable throwable, JSONObject response){
 
                 String msg="";
-
                 if(response!=null){
-
                     try {
                         msg = response.getString("error");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 if(request._callBack!=null){
                     request._callBack.onError(statusCode, headers,msg,(JSONObject)null);
@@ -906,20 +1031,12 @@ public class Piggate{
                 if(response!=null){
                     try {
                         obj = response.getJSONObject("data");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                     try {
                         msg = response.getString("success");
-                    } catch (JSONException a) {
-
-                    }
-                    catch (NullPointerException a) {
-
-                    }
+                    } catch (JSONException a) {}
+                    catch (NullPointerException a) {}
                 }
                 if(request._callBack!=null){
                     request._callBack.onComplete(statusCode, headers,msg,obj);
@@ -936,9 +1053,104 @@ public class Piggate{
         return request;
     }
 
+    /*
+    RequestInfo
+    -----------
+    Function to do the request for get the info contents
+    do a GET request to the server to get the information for an existing beacon
+    -----------------------------------------------------------------------------
+    Request params: none
+     */
+    public Request RequestInfo(final PiggateBeacon beacon){
+        final Request request=new Request(this);
+
+        request._method="GET"; //Define the request method
+        request._params=null; //Define the params
+        request._url="client/get/ibeacon/major/"+beacon.getMajor()+"/minor/"+beacon.getMinor(); //Define the url
+        //Handle the request events (if the request fail or is correct)
+        request._rest_callback=new JsonHttpResponseHandler() {
+
+            //Handle the request error for JSONArray
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable e, JSONArray response) {
+                //Unused
+            }
+
+            //Handle the request error for JSONObject
+            //Return a message to the user
+            @Override
+            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject response) {
+
+                String msg = "";
+                JSONObject obj = null;
+                if(response!=null){ // If the response is JSONObject instead of expected JSONArray
+                    try {
+                        msg = response.getString("error");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                }
+                if (request._callBack != null) {
+                    PiggateBeacon.addPendingBeacons(new ArrayList<>(Arrays.asList(beacon)));
+                    request._callBack.onError(statusCode, headers,msg, (JSONArray)null);
+                }
+            }
+
+            //Handle the request success for JSONObject
+            //Return a message to the user
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+
+                String msg = "";
+                JSONObject obj = null;
+                JSONArray obj2 = null;
+                // If the response is JSONObject instead of expected JSONArray
+                if(response!=null){
+                    try {
+                        obj = response.getJSONObject("data");
+                        obj2 = obj.getJSONArray("info");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                    try {
+                        msg = response.getString("success");
+                    } catch (JSONException a) {
+
+                    }
+                    catch (NullPointerException a) {
+
+                    }
+                }
+                if (request._callBack != null) {
+                    request._callBack.onComplete(statusCode, headers,msg, (JSONArray)obj2);
+                    //Add the information tickets to the registry
+                    PiggateInfo.addInfo(obj2);
+                }
+            }
+
+            //Handle the request success for JSONArray
+            @Override
+            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                //Unused
+            }
+        };
+        return request;
+    }
+
     //Get the offers array using the PiggateOffers function
     public ArrayList<PiggateOffers> getOffers(){
         return PiggateOffers.getOffers();
+    }
+
+    //Get the offers array using the PiggateOffers function
+    public ArrayList<PiggateInfo> getInfo(){
+        return PiggateInfo.getInfo();
     }
 
     //Function that search for nearby beacons and request to the server to refresh the offers
@@ -976,6 +1188,41 @@ public class Piggate{
         }
     }
 
+    //Function that search for nearby beacons and request to the server to refresh the offers
+    synchronized public void refreshInfo(){
+        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons(); //Get the pending nearby iBeacons
+        if(beacons.size()>0) {
+            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each iBeacon
+                RequestInfo(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
+
+                    //Method onComplete for JSONObject
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onError for JSONObject
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onComplete for JSONArray
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        //Unused
+                    }
+
+                    //Method onError for JSONArray
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        //Unused
+                    }
+                }).exec();
+            }
+        }
+    }
+
     //Use the Stripe library to validate a credit card
     //Need <uses-permission android:name="android.permission.INTERNET"/> in AndroidManifest
     public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, Context context){
@@ -984,9 +1231,7 @@ public class Piggate{
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object for Stripe validator
 
         if ( card.validateCard() ) { //Validate the credit card
-
             final ProgressDialog loadingDialog = ProgressDialog.show(context, "Validating", "Creating token...", true);
-
             //Create the Stripe token
             new Stripe().createToken(
                     card,
@@ -1002,7 +1247,6 @@ public class Piggate{
                             loadingDialog.dismiss();
                         }
                     });
-
             return true; //Return true if card is validated
         }
         else
@@ -1015,11 +1259,8 @@ public class Piggate{
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
-
         if ( card.validateCard() ) { //Validate the credit card
-
             final ProgressDialog loadingDialog = ProgressDialog.show(context, title, msg, true);
-
             //Create the Stripe token
             new Stripe().createToken(
                     card,
@@ -1035,7 +1276,6 @@ public class Piggate{
                             loadingDialog.dismiss();
                         }
                     });
-
             return true; //Return true if card is validated
         }
         else

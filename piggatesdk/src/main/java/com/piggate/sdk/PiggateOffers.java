@@ -38,10 +38,12 @@ public class PiggateOffers {
 
     static ArrayList<PiggateOffers> _registry = new ArrayList<PiggateOffers>(); //Registry ArrayList
     public String _id; //ID of the offer
+    public String _exchangeID; //ID of the exchanged offer
     public String _name; //Name of the offer
     public String _description; //Description of the offer
     public Double _price; //Price of the offer
-    public Double _discount; //Discount associated to the offer
+    public String _currency; //Type of coin ($, €, or )
+    public String _imgURL; //Offer image URL
     public double _latitude; //Latitude of the location
     public double _longitude; //Longitude of the location
     private Date _lastcall; //Last call to the offer
@@ -68,9 +70,18 @@ public class PiggateOffers {
         } catch (JSONException e) {
         }
         try {
-            _discount=object.getDouble("discount");
+            _currency=object.getString("currency");
         } catch (JSONException e) {
         }
+        try {
+            _imgURL=object.getString("img");
+        } catch (JSONException e) {
+        }
+        try {
+            _exchangeID=object.getString("exchanged");
+        } catch (JSONException e) {
+        }
+
 
         JSONObject aux= null;
         try {
@@ -115,12 +126,20 @@ public class PiggateOffers {
         this._price = _price;
     }
 
-    public Double getDiscount() {
-        return _discount;
+    public String getCurrency(){
+        return _currency;
     }
 
-    public void setDiscount(Double _discount) {
-        this._discount = _discount;
+    public void setCurrency(String _currency){
+        this._currency = _currency;
+    }
+
+    public String getImgURL(){
+        return _imgURL;
+    }
+
+    public void setImgURL(String _imgURL){
+        this._imgURL = _imgURL;
     }
 
     public double getLatitude() {
@@ -147,10 +166,18 @@ public class PiggateOffers {
         _lastcall=date;
     }
 
+    public String getExchangeID() {
+        return _exchangeID;
+    }
+
+    public void setExchangeID(String _exchangeID) {
+        this._exchangeID = _exchangeID;
+    }
+
     //Convert the parameters of an offer to String
     @Override
     public String toString(){
-        return getID()+" "+getName()+" "+getDescription();
+        return getID()+" "+getName()+" "+getDescription()+" "+getImgURL()+" "+getCurrency()+" "+getExchangeID();
     }
 
     //Return if an offer is equal to another

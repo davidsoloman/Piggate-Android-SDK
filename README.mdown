@@ -3,7 +3,7 @@ Piggate SDK for Android
 
 This open-source library allows you to integrate Piggate into your Android app. The SDK system requirements are Android 4.3 or above and Bluetooth Low Energy.
 
-Learn more about about the documentation, integrating the SDK into your app, accessing source code, and more at http://documentation.piggate.com/
+Learn more about about the documentation, integrating the SDK into your app, accessing source code, and more at http://piggate.com/docs
 
 ## Introduction
 ------------

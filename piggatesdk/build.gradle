@@ -41,11 +41,4 @@ dependencies {
     compile 'com.stripe:stripe-android:+'
 }
 
-// build a jar with source files
-task sourcesJar(type: Jar) {
-    from android.sourceSets.main.java.srcDirs
-    classifier = 'sources'
-}
-artifacts {
-    archives sourcesJar
-}
+//apply from: 'https://raw.github.com/sergiandreplace/gradle-local-mvn-push/master/gradle-local-mvn-push.gradle'
