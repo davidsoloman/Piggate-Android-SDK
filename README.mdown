@@ -1,14 +1,14 @@
 Piggate SDK for Android
 ========================
 
-This open-source library allows you to integrate Piggate into your Android app. The SDK system requirements are Android 4.3 or above and Bluetooth Low Energy.
+This open-source library allows you to integrate Piggate into your Android app. The SDK system requirements are ***Android 4.3*** or above and ***Bluetooth Low Energy***.
 
 Learn more about about the documentation, integrating the SDK into your app, accessing source code, and more at http://piggate.com/docs
 
 ## Introduction
 ------------
 
-We built several sample apps demonstrating how to use the Piggate SDK for Android. Before importing this library into your app, we recommend that you run these sample apps to become familiar with its functionality and customizations.
+We built several sample applications demonstrating how to use the Piggate SDK for Android. Before importing this library into your app, we recommend that you run these sample apps to become familiar with its functionality and customizations.
 
 ## Features
 --------
@@ -17,6 +17,7 @@ We built several sample apps demonstrating how to use the Piggate SDK for Androi
 - Do custom notifications when a beacon is near
 - Getting iBeacons offers for each app from Piggate
 - Validate credit cards with Stripe and buy offers by using requests with our server and Stripe.
+- Exchange purchased offers through our servers
 - Integration with third party library for range beacons through callback bridges
 
 ## How to use
@@ -24,17 +25,22 @@ We built several sample apps demonstrating how to use the Piggate SDK for Androi
 
 To run our sample apps, you need to import this repo as a standalone android project:
 
-1. Clone this repository onto your machine.
+1. Clone this repository in a folder of your computer.
 
-2. Import this repository's project with Android Studio (File > Import Project > `sample` folder). The project has dependencies on the Asynchronous Http Client, Estimote SDK and Stripe for Android. For more detailed info please see those links: https://github.com/loopj/android-async-http, https://github.com/Estimote/Android-SDK and https://github.com/stripe/stripe-android,respectively.
+2. Import this repository's project with Android Studio (File > Import Project > *demo sample*). The project has dependencies on the Asynchronous Http Client, Estimote SDK and *Stripe* for Android. For more detailed info please see those links: https://github.com/loopj/android-async-http, https://github.com/Estimote/Android-SDK and https://github.com/stripe/stripe-android,respectively.
 
 3. Specify the following in `res/values/strings.xml` of each sample project:
-* <code>piggate_app_id</code> and <code>piggate_uuid_region</code>(optional)
+`piggate_app_id` and `piggate_uuid_region`(optional)
 
-4. Specify the following in `AndroidManifest.xml`of each sample project:
-* <code><meta-data android:name="com.iternox.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/></code> and <code><meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/></code>(optional)
-
-5. Build and run the sample apps using Android Studio.
+4. Specify the following in `AndroidManifest.xml`of each sample project (*the application ID from the dashboard and, optionally, the UUID*):
+ ```
+ <meta-data android:name="com.iternox.piggate.sdk.ApplicationId"android:value="@string/piggate_app_id"/>
+```
+```
+ <meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/>
+ ```
+ 
+6. Build and run the sample apps using Android Studio.
 
 We also are planning to upload our SDK into maven for simply importing with a single line.
 
@@ -44,10 +50,10 @@ We also are planning to upload our SDK into maven for simply importing with a si
 There are three implemented examples using our SDK:
 
 - **PiggateLogin:** sample application that implements the login and register into the server and shows offers when a beacon is near
-- **PiggateLogin App:** PiggateLogin example using the application class to range beacons and show push notifications since the application is oppened and while the application is alive
+- **PiggateLogin Application:** PiggateLogin example using the application class to range beacons and show push notifications since the application is oppened and while the application is alive
 - **PiggateLogin Service:** PiggateLogin example using a service to range beacons and show push notifications with a service that is always running even if the application is killed
-- **PiggateCompleteExample:** complete example for the SDK. Includes the login and register activities, the logged activity with a list of the near offers, and a last activity for buy a single offer validating a credit card and doing a request to our server.
-
+- **PiggateOffersDemo:** complete example for store offers, including the login and register activities, the logged activity with a list of the near offers, an activity for purchase a single offer validating a credit card and doing a request to our server, and an activity for exchange a purchased offer with a code.
+-  **PiggateInfoDemo:** complete example for displaying information related to *iBeacons* in places like museums. This application implements activities for login, register and display info cards about nearby artworks or similar, including text information, an image and a video.
 
 ## GIVE FEEDBACK
 -------------
