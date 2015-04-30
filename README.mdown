@@ -1,3 +1,4 @@
+![Piggate_logo](http://piggate.github.io/img/logo.png)
 Piggate SDK for Android
 ========================
 
