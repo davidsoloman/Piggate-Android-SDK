@@ -72,7 +72,7 @@ public class Piggate{
     NotificationManager notificationManager; //For the notifications
     PersistentCookieStore _cookieStore; //For saving the cookies of the application
     String APP_ID; //ID of the application
-    public static final String PUBLISHABLE_KEY = "pk_test_BN86VnxiMBHkZtzPmpykc56g";
+    String PUBLISHABLE_KEY; //Stripe publishable key for payments
 
     //Return the context of the application
     public Context getApplicationContext(){
@@ -1229,7 +1229,7 @@ public class Piggate{
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object for Stripe validator
-
+        PUBLISHABLE_KEY = getMetadata(context,"com.piggate.sdk.PublishableKey");
         if ( card.validateCard() ) { //Validate the credit card
             final ProgressDialog loadingDialog = ProgressDialog.show(context, "Validating", "Creating token...", true);
             //Create the Stripe token
@@ -1259,6 +1259,7 @@ public class Piggate{
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
+        PUBLISHABLE_KEY = getMetadata(context,"com.piggate.sdk.PublishableKey");
         if ( card.validateCard() ) { //Validate the credit card
             final ProgressDialog loadingDialog = ProgressDialog.show(context, title, msg, true);
             //Create the Stripe token

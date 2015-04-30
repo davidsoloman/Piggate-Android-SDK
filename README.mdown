@@ -3,7 +3,7 @@ Piggate SDK for Android
 
 This open-source library allows you to integrate Piggate into your Android app. The SDK system requirements are ***Android 4.3*** or above and ***Bluetooth Low Energy***.
 
-Learn more about about the documentation, integrating the SDK into your app, accessing source code, and more at http://piggate.com/docs
+Learn more about about the documentation, integrating the SDK into your app, accessing source code, and more at our documentation page http://piggate.com/docs or our blog http://piggate.github.io/
 
 ## Introduction
 ------------
@@ -30,11 +30,13 @@ To run our sample apps, you need to import this repo as a standalone android pro
 2. Import this repository's project with Android Studio (File > Import Project > *demo sample*). The project has dependencies on the Asynchronous Http Client, Estimote SDK and *Stripe* for Android. For more detailed info please see those links: https://github.com/loopj/android-async-http, https://github.com/Estimote/Android-SDK and https://github.com/stripe/stripe-android,respectively.
 
 3. Specify the following in `res/values/strings.xml` of each sample project:
-`piggate_app_id` and `piggate_uuid_region`(optional)
+`piggate_app_id` (application identifier from *Piggate* dashboard), `stripe_publishable_key` (for do payments with *Stripe*) and `piggate_uuid_region`(optional)
 
 4. Specify the following in `AndroidManifest.xml`of each sample project (*the application ID from the dashboard and, optionally, the UUID*):
  ```
  <meta-data android:name="com.iternox.piggate.sdk.ApplicationId"android:value="@string/piggate_app_id"/>
+
+ <meta-data android:name="com.piggate.sdk.PublishableKey" android:value="@string/stripe_publishable_key"/>
  
  <meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/>
  ```
