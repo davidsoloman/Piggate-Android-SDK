@@ -35,8 +35,7 @@ To run our sample apps, you need to import this repo as a standalone android pro
 4. Specify the following in `AndroidManifest.xml`of each sample project (*the application ID from the dashboard and, optionally, the UUID*):
  ```
  <meta-data android:name="com.iternox.piggate.sdk.ApplicationId"android:value="@string/piggate_app_id"/>
-```
-```
+ 
  <meta-data android:name="com.iternox.piggate.sdk.ApplicationUUID" android:value="@string/piggate_uuid_region"/>
  ```
  
