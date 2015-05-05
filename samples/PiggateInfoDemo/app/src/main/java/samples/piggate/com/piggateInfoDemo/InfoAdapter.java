@@ -64,7 +64,10 @@ public class InfoAdapter extends RecyclerView.Adapter<InfoAdapter.ViewHolder> {
     public void onBindViewHolder(ViewHolder viewHolder, int i) {
 
         viewHolder.infoTitle.setText(infoList.get(i).getName().toString());
-        viewHolder.infoDescription.setText(infoList.get(i).getDescription().toString().substring(0,75)+"...");
+        if(infoList.get(i).getDescription().length() > 75)
+            viewHolder.infoDescription.setText(infoList.get(i).getDescription().toString().substring(0,75)+"...");
+        else
+            viewHolder.infoDescription.setText(infoList.get(i).getDescription().toString());
         viewHolder.infoImage.setImageUrl(infoList.get(i).get_imgURL().toString());
     }
 
