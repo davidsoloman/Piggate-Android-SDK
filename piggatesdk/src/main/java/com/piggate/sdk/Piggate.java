@@ -82,7 +82,7 @@ public class Piggate{
     //Callback that allows the user override these methods and handle these events
     public static interface PiggateBeaconCallback{
         public void DeviceNotCompatible();
-        public void BluetoohNotConnect();
+        public void BluetoothNotConnect();
         public void PreScanning();
         public void onReady();
         public void onErrorScanning();

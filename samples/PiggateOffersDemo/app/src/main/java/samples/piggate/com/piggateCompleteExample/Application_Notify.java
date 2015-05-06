@@ -27,7 +27,6 @@ Application class: start the service when the application is open
 */
 public class Application_Notify extends Application {
 
-    public static boolean logout = true;
     public static boolean exchangeRequest = false; //If true: there are offers to exchange
 
     public void onCreate() {

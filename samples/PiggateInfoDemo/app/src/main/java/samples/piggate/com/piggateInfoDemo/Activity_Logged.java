@@ -188,7 +188,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
 
                     loadingDialog.dismiss();
-                    Application_Notify.logout = true;
+                    Service_Notify.logout = true;
 
                     //Go back to the main activity
                     Intent slideactivity = new Intent(Activity_Logged.this, Activity_Main.class);
@@ -201,7 +201,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 //Method onError for JSONObject
                 @Override
                 public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                    Application_Notify.logout = false;
+                    Service_Notify.logout = false;
                     loadingDialog.dismiss();
                     errorDialog.show();
                     _piggate.reload();
@@ -236,7 +236,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     //onBackPressed method for the activity
     @Override
     public void onBackPressed(){
-        Application_Notify.logout = false;
+        Service_Notify.logout = false;
         super.onBackPressed();
     }
 

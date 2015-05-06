@@ -109,7 +109,8 @@ public class PiggateEstimoteBridge implements BaseBridge {
         if (_beaconManager.isBluetoothEnabled()) {
             connectToService();
         } else if(_piggatecallback!=null) {
-            _piggatecallback.BluetoohNotConnect();
+             connectToService();
+            _piggatecallback.BluetoothNotConnect();
         }
     }
 

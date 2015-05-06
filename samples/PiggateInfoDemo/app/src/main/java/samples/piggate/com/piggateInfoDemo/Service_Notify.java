@@ -50,6 +50,7 @@ public class Service_Notify extends Service{
     static String defaultMsg= "Click to see the complete content"; //Default message to show in the notification
     static String notificationtitle = "";
     static String notificationMsg = "";
+    static boolean logout = true;
     private Timer timer; //Timer for refreshing the notification message
 
     @Override
@@ -76,7 +77,7 @@ public class Service_Notify extends Service{
 
             //Handle if the bluetooth is not connected
             @Override
-            public void BluetoohNotConnect() {
+            public void BluetoothNotConnect() {
                 //Unused
             }
 
@@ -118,6 +119,7 @@ public class Service_Notify extends Service{
     //this flag allow to restart the service when it is possible
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
+        logout = false;
         return Service.START_STICKY;
     }
 

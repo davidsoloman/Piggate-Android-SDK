@@ -92,8 +92,6 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         setContentView(R.layout.activity_logged);
         getSupportActionBar().setTitle(PiggateUser.getEmail());
 
-        _piggate=new Piggate(this,null); //Initialize the Piggate object
-
         //Initialize and set all the left navigation drawer fields
         mDrawer = new Drawer()
                 .withActivity(this)
@@ -132,6 +130,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
+        _piggate=new Piggate(this,null); //Initialize the Piggate object
         _piggate.refreshOffers(); //Look for the server offers
         offerList = _piggate.getOffers(); //Get the offers data and put into the lists
         mAdapter= new OffersAdapter(offerList,this); //Update the adapter
@@ -266,7 +265,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
 
                     loadingDialog.dismiss();
-                    Application_Notify.logout = true;
+                    Service_Notify.logout = true;
 
                     //Go back to the main activity
                     Intent slideactivity = new Intent(Activity_Logged.this, Activity_Main.class);
@@ -279,7 +278,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 //Method onError for JSONObject
                 @Override
                 public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                    Application_Notify.logout = false;
+                    Service_Notify.logout = false;
                     loadingDialog.dismiss();
                     errorDialog.show();
                     _piggate.reload();
@@ -354,7 +353,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     //onBackPressed method for the activity
     @Override
     public void onBackPressed(){
-        Application_Notify.logout = false;
+        Service_Notify.logout = false;
         super.onBackPressed();
     }
 

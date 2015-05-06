@@ -96,7 +96,7 @@ public class Activity_Main extends ActionBarActivity {
 
         //If you close the application without logout, the session will be active
         //Call a listener of the RequestUser method for Piggate object
-        if(!Application_Notify.logout) {
+        if(Service_Notify.logout == false) {
             if (checkInternetConnection()) {
 
                 loadingDialog = ProgressDialog.show(this, "Singing In", "Wait a few seconds", true);

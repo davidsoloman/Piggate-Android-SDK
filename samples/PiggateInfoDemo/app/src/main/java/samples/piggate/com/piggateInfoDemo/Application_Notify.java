@@ -27,8 +27,6 @@ Application class: start the service when the application is open
 */
 public class Application_Notify extends Application {
 
-    public static boolean logout = true;
-
     public void onCreate() {
         super.onCreate();
         startService(new Intent(getApplicationContext(), Service_Notify.class)); //Start the notification service
