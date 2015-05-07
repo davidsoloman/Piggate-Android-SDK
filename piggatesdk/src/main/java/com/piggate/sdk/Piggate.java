@@ -842,7 +842,7 @@ public class Piggate{
 
         request._method = "POST"; //define the request method
         request._params = params; //define the params
-        request._url = "stripe/charge"; //define the url to do the request
+        request._url = "client/stripe/charge"; //define the url to do the request
 
         //Handle the request events (if the request fail or is correct)
         request._rest_callback = new JsonHttpResponseHandler() {
