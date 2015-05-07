@@ -148,7 +148,7 @@ public class Activity_Logged extends Activity {
 
             //Handle if the bluetooth is not connected
             @Override
-            public void BluetoohNotConnect() {
+            public void BluetoothNotConnect() {
                 //Unused
             }
 

@@ -61,7 +61,7 @@ public class Service_Notify extends Service{
 
             //Handle if the bluetooth is not connected
             @Override
-            public void BluetoohNotConnect() {
+            public void BluetoothNotConnect() {
                 //Unused
             }
 

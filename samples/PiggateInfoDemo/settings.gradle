@@ -1,1 +1,2 @@
 include ':app', ':piggatesdk'
+project(':piggatesdk').projectDir=new File('../../piggatesdk/')

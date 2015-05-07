@@ -45,7 +45,7 @@ public class Application_Notify extends Application {
 
             //Handle if the bluetooth is not connected
             @Override
-            public void BluetoohNotConnect() {
+            public void BluetoothNotConnect() {
                 //Unused
             }
 

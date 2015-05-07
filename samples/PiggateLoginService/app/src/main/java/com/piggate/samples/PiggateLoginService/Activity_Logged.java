@@ -207,7 +207,7 @@ public class Activity_Logged extends Activity {
 
         if(checkInternetConnection() == true) { //If the internet connection is working
             //Get the notification message
-            _piggate.requestGetNotification().setListenerRequest(new Piggate.PiggateCallBack() {
+            _piggate.RequestGetNotification().setListenerRequest(new Piggate.PiggateCallBack() {
                 @Override
                 public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
                     Service_Notify.notificationMsg = data.optString("message");
