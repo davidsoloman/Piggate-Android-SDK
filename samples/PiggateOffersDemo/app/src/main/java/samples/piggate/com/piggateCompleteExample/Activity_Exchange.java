@@ -49,7 +49,6 @@ public class Activity_Exchange extends ActionBarActivity {
     EditText exchangeCode; //Code to exchange an offer
     Button exchangeButton; //Button to accept
     AlertDialog networkErrorDialog;
-    AlertDialog errorDialog;
     SmartImageView image;
     Piggate piggate;
 
@@ -71,16 +70,6 @@ public class Activity_Exchange extends ActionBarActivity {
         image = (SmartImageView) findViewById(R.id.offerImage3);
 
         image.setImageUrl(getIntent().getExtras().getString("offerImgURL")); //Set the offer image from URL
-
-        errorDialog = new AlertDialog.Builder(this).create();
-        errorDialog.setTitle("Exchange error");
-        errorDialog.setMessage("There is an error with the exchange");
-        errorDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-            }
-        });
 
         networkErrorDialog = new AlertDialog.Builder(this).create();
         networkErrorDialog.setTitle("Network error");
@@ -116,7 +105,7 @@ public class Activity_Exchange extends ActionBarActivity {
 
                             @Override
                             public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                                errorDialog.show();
+                                goBackActivity(false);
                             }
 
                             @Override
@@ -126,7 +115,7 @@ public class Activity_Exchange extends ActionBarActivity {
 
                             @Override
                             public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
-                                errorDialog.show();
+                                goBackActivity(false);
                             }
                         }).exec();
                     }

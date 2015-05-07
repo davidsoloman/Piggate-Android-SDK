@@ -71,7 +71,9 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     AlertDialog errorDialog;
     AlertDialog networkErrorDialog;
     AlertDialog successPaymentDialog;
+    AlertDialog errorBuyDialog;
     AlertDialog successExchangeDialog;
+    AlertDialog errorExchangeDialog;
     int REQUEST_ENABLE_BT = 4623;
     Drawer.Result mDrawer; //Left drawer
     ArrayList<PiggateOffers> exchangeOfferList = new ArrayList<>(); //List of offers to exchange
@@ -166,6 +168,16 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         });
 
+        errorBuyDialog = new AlertDialog.Builder(this).create();
+        errorBuyDialog.setTitle("Payment failed");
+        errorBuyDialog.setMessage("There is an error with your payment");
+        errorBuyDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+
         successExchangeDialog = new AlertDialog.Builder(this).create();
         successExchangeDialog.setTitle("Offer successfully exchanged");
         successExchangeDialog.setMessage("The offer has been purchased and exchanged");
@@ -176,6 +188,15 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         });
 
+        errorExchangeDialog = new AlertDialog.Builder(this).create();
+        errorExchangeDialog.setTitle("Exchange error");
+        errorExchangeDialog.setMessage("There is an error with the exchange");
+        errorExchangeDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
 
         networkErrorDialog = new AlertDialog.Builder(this).create();
         networkErrorDialog.setTitle("Network error");
@@ -192,9 +213,15 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 successPaymentDialog.show();
                 Application_Notify.exchangeRequest = true;
             }
+            else {
+                errorBuyDialog.show();
+            }
         }else if(getIntent().hasExtra("exchanged")){
             if (getIntent().getExtras().getBoolean("exchanged") == true) {
                 successExchangeDialog.show();
+            }
+            else{
+                errorExchangeDialog.show();
             }
         }
 

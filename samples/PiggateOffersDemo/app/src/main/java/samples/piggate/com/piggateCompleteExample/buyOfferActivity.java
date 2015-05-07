@@ -66,7 +66,6 @@ public class buyOfferActivity extends ActionBarActivity{
     AlertDialog errorDialog;
     AlertDialog networkDialog;
     ProgressDialog loadingDialog;
-    AlertDialog errorBuyDialog;
     SmartImageView image;
     Animation slidetoLeft;
     Animation slidetoRight;
@@ -121,18 +120,6 @@ public class buyOfferActivity extends ActionBarActivity{
             @Override
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
-            }
-        });
-
-        //Buy error AlertDialog
-        errorBuyDialog = new AlertDialog.Builder(this).create();
-        errorBuyDialog.setTitle("Payment failed");
-        errorBuyDialog.setMessage("There is an error with your payment");
-        errorBuyDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                closeBuyLayout();
             }
         });
 
@@ -210,9 +197,13 @@ public class buyOfferActivity extends ActionBarActivity{
 
                         //Show an error and go back to the credit card
                         loadingDialog.dismiss();
-                        errorDialog.show();
-
-                        closeBuyLayout();
+                        //Go back to the offer list with the variable payment set to false (payment error)
+                        Intent slideactivity = new Intent(buyOfferActivity.this, Activity_Logged.class);
+                        slideactivity.putExtra("payment", false);
+                        slideactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        Bundle bndlanimation =
+                                ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.slidefromleft, R.anim.slidetoright).toBundle();
+                        startActivity(slideactivity, bndlanimation);
                     }
 
                     //onComplete method for JSONArray
@@ -238,9 +229,13 @@ public class buyOfferActivity extends ActionBarActivity{
 
                         //Show an error and go back to the credit card
                         loadingDialog.dismiss();
-                        errorDialog.show();
-
-                        closeBuyLayout();
+                        //Go back to the offer list with the variable payment set to false (payment error)
+                        Intent slideactivity = new Intent(buyOfferActivity.this, Activity_Logged.class);
+                        slideactivity.putExtra("payment", false);
+                        slideactivity.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        Bundle bndlanimation =
+                                ActivityOptions.makeCustomAnimation(getApplicationContext(), R.anim.slidefromleft, R.anim.slidetoright).toBundle();
+                        startActivity(slideactivity, bndlanimation);
                     }
                 }).exec();
             }

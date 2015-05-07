@@ -42,7 +42,7 @@ public class PiggateOffers {
     public String _name; //Name of the offer
     public String _description; //Description of the offer
     public Double _price; //Price of the offer
-    public String _currency; //Type of coin ($, €, or )
+    public String _currency; //Type of coin ($, €, ...)
     public String _imgURL; //Offer image URL
     public double _latitude; //Latitude of the location
     public double _longitude; //Longitude of the location
