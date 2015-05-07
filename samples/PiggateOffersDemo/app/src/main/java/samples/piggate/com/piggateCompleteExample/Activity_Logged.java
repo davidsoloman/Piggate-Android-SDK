@@ -89,6 +89,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        _piggate=new Piggate(this,null); //Initialize the Piggate object
         setContentView(R.layout.activity_logged);
         getSupportActionBar().setTitle(PiggateUser.getEmail());
 
@@ -130,7 +131,6 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        _piggate=new Piggate(this,null); //Initialize the Piggate object
         _piggate.refreshOffers(); //Look for the server offers
         offerList = _piggate.getOffers(); //Get the offers data and put into the lists
         mAdapter= new OffersAdapter(offerList,this); //Update the adapter
