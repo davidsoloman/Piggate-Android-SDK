@@ -52,6 +52,7 @@ public class Service_Notify extends Service{
     static String notificationtitle = "";
     static String notificationMsg = "";
     static boolean logout = true;
+    static boolean exchangeRequest = true; //If true: there are offers to exchange
     private Timer timer; //Timer for refreshing the notification message
 
     @Override

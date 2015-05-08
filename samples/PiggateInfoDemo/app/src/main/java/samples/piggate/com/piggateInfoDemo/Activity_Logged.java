@@ -77,6 +77,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     protected void onCreate(Bundle savedInstanceState) {
 
         super.onCreate(savedInstanceState);
+        _piggate=new Piggate(this,null); //Initialize the Piggate object
         setContentView(R.layout.activity_logged);
         getSupportActionBar().setTitle(PiggateUser.getEmail());
 
@@ -87,17 +88,9 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
 
-        _piggate=new Piggate(this,null); //Initialize the Piggate object
-
-        _piggate.refreshInfo(); //Look for the server info tickets for every beacon
-        infoList = _piggate.getInfo(); //Get the info data and put into the lists
-        infoList = new ArrayList<>();
-        mAdapter= new InfoAdapter(infoList,this); //Update the adapter
-
         //Initialize recycler view
         mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 

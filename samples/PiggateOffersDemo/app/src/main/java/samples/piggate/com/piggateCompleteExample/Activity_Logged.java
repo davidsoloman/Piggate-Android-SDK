@@ -123,25 +123,10 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 .withSelectedItem(-1)
                 .build();
 
-        if(Application_Notify.exchangeRequest == true)
-            getOffersToExchange(); //Get the offers to exchange and put them into the left drawer list
-
-        //Check if the bluetooth is switched on
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
-
-        _piggate.refreshOffers(); //Look for the server offers
-        offerList = _piggate.getOffers(); //Get the offers data and put into the lists
-        mAdapter= new OffersAdapter(offerList,this); //Update the adapter
-
         //Initialize recycler view
         mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
-        mRecyclerView.setAdapter(mAdapter);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+        mRecyclerView.setLayoutManager(new LinearLayoutManager(Activity_Logged.this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
         //Initialize swipe layout
@@ -208,24 +193,30 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         });
 
+        //Check if the bluetooth is switched on
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
+
         if(getIntent().hasExtra("payment")) {
             if (getIntent().getExtras().getBoolean("payment") == true) {
-                successPaymentDialog.show();
-                Application_Notify.exchangeRequest = true;
+                successPaymentDialog.show(); //Show success payment dialog
+                Service_Notify.exchangeRequest = true;
             }
             else {
-                errorBuyDialog.show();
+                errorBuyDialog.show(); //Show payment error dialog
             }
         }else if(getIntent().hasExtra("exchanged")){
             if (getIntent().getExtras().getBoolean("exchanged") == true) {
-                successExchangeDialog.show();
+                successExchangeDialog.show(); //Show exchange success dialog
             }
             else{
-                errorExchangeDialog.show();
+                errorExchangeDialog.show(); //Show exchange error dialog
             }
         }
 
-        updateUIoffers(); //Refresh the offers for the first time
         //Start the timer task to refresh the offers
         timer = new Timer();
         timer.schedule(new TimerTask() { //Load offers data from the server using a request
@@ -233,7 +224,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             public void run() {
                 updateUIoffers(); //refresh the recyclerview list
             }
-        }, 0, 10000); //Time between calls
+        }, 0, 7000); //Time between calls
     }
 
     //Method onStart of the activity
@@ -258,7 +249,6 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     @Override
     protected void onResume(){
         super.onResume();
-        updateUIoffers();
     }
 
     //runOnUiThread for refreshing the offer list of the activity
@@ -267,12 +257,12 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             @Override
             public void run() {
                 //Get the offers data and put into the list
-                _piggate.refreshOffers();
-                offerList = _piggate.getOffers();
-                if(Application_Notify.exchangeRequest == true)
-                    getOffersToExchange();
-                mAdapter= new OffersAdapter(offerList,getApplicationContext());
-                mRecyclerView.setAdapter(mAdapter);
+                _piggate.refreshOffers(); //Look for the server offers
+                offerList = _piggate.getOffers(); //Get the offers data and put into the lists
+                if(Service_Notify.exchangeRequest == true)
+                    getOffersToExchange(); //Get the offers which are pending to exchange (if any)
+                mAdapter= new OffersAdapter(offerList,getApplicationContext()); //Update the adapter
+                mRecyclerView.setAdapter(mAdapter); //Reset the RecyclerView
             }
         });
     }
@@ -343,7 +333,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             @Override
             public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
                 if (data.length() == 0) //If there are no offers to exchange
-                    Application_Notify.exchangeRequest = false;
+                    Service_Notify.exchangeRequest = false;
                 else { //If there are offers to exchange
                     exchangeOfferList = new ArrayList<>(); //List of offers to exchange
                     for (int i = 0; i < data.length(); i++) {
