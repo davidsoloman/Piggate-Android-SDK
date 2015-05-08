@@ -17,7 +17,7 @@
 -->
 <resources>
     <string name="app_name">Piggate Offers Demo</string>
-    <string name="piggate_app_id">553f47bb4eb6c593275b03b9</string>
+    <string name="piggate_app_id">554c85751fdd160c1d8c92ec</string>
     <string name="stripe_publishable_key">pk_test_BN86VnxiMBHkZtzPmpykc56g</string>
 
     <string-array name="months_array">

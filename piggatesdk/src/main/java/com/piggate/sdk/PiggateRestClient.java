@@ -32,7 +32,7 @@ This class contains all the attributes of a request and the essential methods
 public class PiggateRestClient {
     private static final String PROTOCOL = "http"; //Protocol
     private static final String PORT = "80"; //Port (80)
-    private static final String HOST = "beta.piggate.com";//"piggate.com"; //Host (piggate.com)
+    private static final String HOST = "piggate.com";//"piggate.com"; //Host (piggate.com)
     private static final String BASE_URL = PROTOCOL+"://"+HOST+":"+PORT+"/api/v1/"; //Complete URL for the API
     private static final AsyncHttpClient syncClient = new SyncHttpClient(); //AsyncHttpClient object
 
