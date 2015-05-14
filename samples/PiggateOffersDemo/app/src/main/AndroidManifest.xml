@@ -18,6 +18,7 @@
         <service android:name="com.estimote.sdk.service.BeaconService" android:exported="false"/>
 
         <meta-data android:name="com.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/>
+        <!-- Publishable key will be removed from here in next release and get by an attribute of every offer-->
         <meta-data android:name="com.piggate.sdk.PublishableKey" android:value="@string/stripe_publishable_key"/>
 
         <activity

@@ -33,7 +33,6 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -217,14 +216,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         }
 
-        //Start the timer task to refresh the offers
-        timer = new Timer();
-        timer.schedule(new TimerTask() { //Load offers data from the server using a request
-            @Override
-            public void run() {
-                updateUIoffers(); //refresh the recyclerview list
-            }
-        }, 0, 7000); //Time between calls
+        updateUIoffers(); //refresh the recyclerview list
     }
 
     //Method onStart of the activity
@@ -237,18 +229,29 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     @Override
     public void onStop(){
         super.onStop();
+        timer.cancel();
     }
 
     //Method onDestroy of the activity
     @Override
     public void onDestroy(){
         super.onDestroy();
+        timer.cancel();
     }
 
     //Method onResume of the activity
     @Override
     protected void onResume(){
         super.onResume();
+
+        //Start the timer task to refresh the offers
+        timer = new Timer();
+        timer.schedule(new TimerTask() { //Load offers data from the server using a request
+            @Override
+            public void run() {
+                updateUIoffers(); //refresh the recyclerview list
+            }
+        }, 0, 7000); //Time between calls
     }
 
     //runOnUiThread for refreshing the offer list of the activity

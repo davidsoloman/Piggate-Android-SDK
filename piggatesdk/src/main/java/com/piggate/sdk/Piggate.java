@@ -72,7 +72,6 @@ public class Piggate{
     NotificationManager notificationManager; //For the notifications
     PersistentCookieStore _cookieStore; //For saving the cookies of the application
     String APP_ID; //ID of the application
-    String PUBLISHABLE_KEY; //Stripe publishable key for payments
 
     //Return the context of the application
     public Context getApplicationContext(){
@@ -1229,13 +1228,12 @@ public class Piggate{
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object for Stripe validator
-        PUBLISHABLE_KEY = getMetadata(context,"com.piggate.sdk.PublishableKey");
         if ( card.validateCard() ) { //Validate the credit card
             final ProgressDialog loadingDialog = ProgressDialog.show(context, "Validating", "Creating token...", true);
             //Create the Stripe token
             new Stripe().createToken(
                     card,
-                    PUBLISHABLE_KEY,
+                    getMetadata(context,"com.piggate.sdk.PublishableKey"),
                     new TokenCallback() {
                         public void onSuccess(Token token) { //If create the token successfully
                             creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object
@@ -1259,13 +1257,12 @@ public class Piggate{
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
-        PUBLISHABLE_KEY = getMetadata(context,"com.piggate.sdk.PublishableKey");
         if ( card.validateCard() ) { //Validate the credit card
             final ProgressDialog loadingDialog = ProgressDialog.show(context, title, msg, true);
             //Create the Stripe token
             new Stripe().createToken(
                     card,
-                    PUBLISHABLE_KEY,
+                    getMetadata(context,"com.piggate.sdk.PublishableKey"),
                     new TokenCallback() {
                         public void onSuccess(Token token) { //If create the token successfully
                             creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object

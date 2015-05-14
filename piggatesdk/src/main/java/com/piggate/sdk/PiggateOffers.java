@@ -44,6 +44,7 @@ public class PiggateOffers {
     public Double _price; //Price of the offer
     public String _currency; //Type of coin ($, €, ...)
     public String _imgURL; //Offer image URL
+    //public String _token; //Stripe publishable key for payments
     public double _latitude; //Latitude of the location
     public double _longitude; //Longitude of the location
     private Date _lastcall; //Last call to the offer
@@ -81,13 +82,16 @@ public class PiggateOffers {
             _exchangeID=object.getString("exchanged");
         } catch (JSONException e) {
         }
-
+        /*try {
+            _token=object.getString("token_key");
+        } catch (JSONException e) {
+        }*/
 
         JSONObject aux= null;
         try {
             aux = object.getJSONObject("position");
             _latitude=aux.getDouble("latitude");
-            _longitude=aux.getDouble("length");
+            _longitude=aux.getDouble("length"); //Will be changed to "longitude"
         } catch (JSONException e) {
         }
     }
@@ -174,10 +178,18 @@ public class PiggateOffers {
         this._exchangeID = _exchangeID;
     }
 
+    /*public String getToken() {
+        return _token;
+    }
+
+    public void setToken(String _token) {
+        this._token = _token;
+    }*/
+
     //Convert the parameters of an offer to String
     @Override
     public String toString(){
-        return getID()+" "+getName()+" "+getDescription()+" "+getImgURL()+" "+getCurrency()+" "+getExchangeID();
+        return getID()+" "+getName()+" "+getDescription()+" "+getImgURL()+" "+getCurrency()+" "+getExchangeID();//+" "+getToken();
     }
 
     //Return if an offer is equal to another

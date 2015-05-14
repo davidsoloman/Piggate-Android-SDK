@@ -120,6 +120,7 @@ public class OffersAdapter extends RecyclerView.Adapter<OffersAdapter.ViewHolder
                         slideactivity.putExtra("offerCurrency", offers.get(getPosition()).getCurrency().toString());
                         slideactivity.putExtra("offerID", offers.get(getPosition()).getID().toString());
                         slideactivity.putExtra("offerPrice", offers.get(getPosition()).getPrice().toString());
+                        //slideactivity.putExtra("offerTokenKey", offers.get(getPosition()).getToken().toString());
 
                         Bundle bndlanimation =
                                 ActivityOptions.makeCustomAnimation(mContext, R.anim.slidefromright, R.anim.slidetoleft).toBundle();
