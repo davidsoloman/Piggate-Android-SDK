@@ -17,7 +17,7 @@
 -->
 <resources>
     <string name="app_name">Piggate Info Demo</string>
-    <string name="piggate_app_id">5540bd01caada0542ca8790f</string>
+    <string name="piggate_app_id">554c88d81fdd160c1d8c92f6</string>
 
     <string-array name="months_array">
         <item>01</item>

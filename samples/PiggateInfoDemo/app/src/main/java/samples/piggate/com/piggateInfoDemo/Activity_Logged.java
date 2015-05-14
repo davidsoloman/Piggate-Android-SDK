@@ -118,14 +118,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         });
 
-        //Start the timer task to refresh the offers
-        timer = new Timer();
-        timer.schedule(new TimerTask() { //Load offers data from the server using a request
-            @Override
-            public void run() {
-                updateUIlist(); //refresh the recyclerview list
-            }
-        }, 0, 7000); //Time between calls
+        updateUIlist(); //refresh the recyclerview list
     }
 
     //Method onStart of the activity
@@ -150,6 +143,14 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     @Override
     protected void onResume(){
         super.onResume();
+        //Start the timer task to refresh the offers
+        timer = new Timer();
+        timer.schedule(new TimerTask() { //Load offers data from the server using a request
+            @Override
+            public void run() {
+                updateUIlist(); //refresh the recyclerview list
+            }
+        }, 0, 7000); //Time between calls
     }
 
     //runOnUiThread for refreshing the offer list of the activity
