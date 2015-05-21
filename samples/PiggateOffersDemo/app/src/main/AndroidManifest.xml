@@ -9,7 +9,6 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
-        android:name="samples.piggate.com.piggateCompleteExample.Application_Notify"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
@@ -18,8 +17,6 @@
         <service android:name="com.estimote.sdk.service.BeaconService" android:exported="false"/>
 
         <meta-data android:name="com.piggate.sdk.ApplicationId" android:value="@string/piggate_app_id"/>
-        <!-- Publishable key will be removed from here in next release and get by an attribute of every offer-->
-        <meta-data android:name="com.piggate.sdk.PublishableKey" android:value="@string/stripe_publishable_key"/>
 
         <activity
             android:name="samples.piggate.com.piggateCompleteExample.Activity_Main"

@@ -841,7 +841,7 @@ public class Piggate{
 
         request._method = "POST"; //define the request method
         request._params = params; //define the params
-        request._url = "stripe/charge"; //define the url to do the request
+        request._url = "stripe/charge"; //define the url to do the request (WILL CHANGE TO client/stripe/charge)
 
         //Handle the request events (if the request fail or is correct)
         request._rest_callback = new JsonHttpResponseHandler() {
@@ -1152,79 +1152,9 @@ public class Piggate{
         return PiggateInfo.getInfo();
     }
 
-    //Function that search for nearby beacons and request to the server to refresh the offers
-    synchronized public void refreshOffers(){
-        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons(); //Get the pending nearby iBeacons
-        if(beacons.size()>0) {
-            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each iBeacon
-                RequestOffers(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
-
-                    //Method onComplete for JSONObject
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONObject
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onComplete for JSONArray
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONArray
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-                }).exec();
-            }
-        }
-    }
-
-    //Function that search for nearby beacons and request to the server to refresh the offers
-    synchronized public void refreshInfo(){
-        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons(); //Get the pending nearby iBeacons
-        if(beacons.size()>0) {
-            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each iBeacon
-                RequestInfo(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
-
-                    //Method onComplete for JSONObject
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONObject
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
-                        //Unused
-                    }
-
-                    //Method onComplete for JSONArray
-                    @Override
-                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-
-                    //Method onError for JSONArray
-                    @Override
-                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
-                        //Unused
-                    }
-                }).exec();
-            }
-        }
-    }
-
     //Use the Stripe library to validate a credit card
     //Need <uses-permission android:name="android.permission.INTERNET"/> in AndroidManifest
-    public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, Context context){
+    public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, String token, Context context){
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object for Stripe validator
@@ -1233,7 +1163,7 @@ public class Piggate{
             //Create the Stripe token
             new Stripe().createToken(
                     card,
-                    getMetadata(context,"com.piggate.sdk.PublishableKey"),
+                    token,
                     new TokenCallback() {
                         public void onSuccess(Token token) { //If create the token successfully
                             creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object
@@ -1253,7 +1183,7 @@ public class Piggate{
 
     //Use the Stripe library to validate a credit card
     //Need <uses-permission android:name="android.permission.INTERNET"/> in AndroidManifest
-    public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, Context context, String title, String msg){
+    public boolean validateCard(String cardNumber, int cardExpMonth, int cardExpYear, String cardCVC, String token, Context context, String title, String msg){
 
         final PiggateCard creditCard = new PiggateCard(cardNumber, cardCVC, cardExpMonth, cardExpYear);
         Card card = new Card(cardNumber, cardExpMonth, cardExpYear, cardCVC); //Create the Card object
@@ -1262,7 +1192,7 @@ public class Piggate{
             //Create the Stripe token
             new Stripe().createToken(
                     card,
-                    getMetadata(context,"com.piggate.sdk.PublishableKey"),
+                    token,
                     new TokenCallback() {
                         public void onSuccess(Token token) { //If create the token successfully
                             creditCard.setTokenID(token.getId()); //Set the token ID in the PiggateCard object

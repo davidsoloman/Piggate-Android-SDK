@@ -22,9 +22,11 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
@@ -33,16 +35,21 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.AdapterView;
+import android.widget.LinearLayout;
 
 import com.mikepenz.materialdrawer.Drawer;
 import com.mikepenz.materialdrawer.model.PrimaryDrawerItem;
 import com.mikepenz.materialdrawer.model.interfaces.IDrawerItem;
 import com.piggate.sdk.Piggate;
+import com.piggate.sdk.PiggateBeacon;
 import com.piggate.sdk.PiggateOffers;
 import com.piggate.sdk.PiggateUser;
 
@@ -61,7 +68,6 @@ Activity for the logged user. Allows to view the nearby beacon offers
 public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     Piggate _piggate; //Object of the Piggate class
-    private Timer timer; //Timer for refresh the offer list
     private SwipeRefreshLayout mSwipeLayout; //Layout with refreshing listener
     private RecyclerView mRecyclerView; //Contain the offer list
     private OffersAdapter mAdapter; //Adapter for the offer list elements
@@ -73,17 +79,25 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     AlertDialog errorBuyDialog;
     AlertDialog successExchangeDialog;
     AlertDialog errorExchangeDialog;
+    LinearLayout newBeaconsLayout;
+    Animation fadeIn, fadeOut;
     int REQUEST_ENABLE_BT = 4623;
     Drawer.Result mDrawer; //Left drawer
     ArrayList<PiggateOffers> exchangeOfferList = new ArrayList<>(); //List of offers to exchange
+    int requestBeaconCounter;
 
-    //Method onPause of the activity
-    //Cancel the timers to suspend the updates when activity is inactive
-    @Override
-    public void onPause() {
-        super.onPause();
-        timer.cancel();
-    }
+    private BroadcastReceiver bReceiver = new BroadcastReceiver() { //Receive service information
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if(bundle != null) {
+                if (bundle.getBoolean("BeaconDiscovered")) {
+                    newBeaconsLayout.setVisibility(LinearLayout.VISIBLE);
+                    newBeaconsLayout.startAnimation(fadeIn);
+                }
+            }
+        }
+    };
 
     //Method onCreate of the activity
     @Override
@@ -93,6 +107,8 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         _piggate=new Piggate(this,null); //Initialize the Piggate object
         setContentView(R.layout.activity_logged);
         getSupportActionBar().setTitle(PiggateUser.getEmail());
+
+        startService(new Intent(getApplicationContext(), Service_Notify.class)); //Start the service
 
         //Initialize and set all the left navigation drawer fields
         mDrawer = new Drawer()
@@ -127,6 +143,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(Activity_Logged.this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        newBeaconsLayout = (LinearLayout)findViewById(R.id.newBeaconsLayout);
 
         //Initialize swipe layout
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
@@ -144,7 +161,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
 
         successPaymentDialog = new AlertDialog.Builder(this).create();
         successPaymentDialog.setTitle("Successful payment");
-        successPaymentDialog.setMessage("Open the left panel to exchange your purchased offers");
+        successPaymentDialog.setMessage("Now you can exchange your purchased product");
         successPaymentDialog.setButton(AlertDialog.BUTTON_NEUTRAL, "OK", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
@@ -192,6 +209,9 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         });
 
+        fadeIn = AnimationUtils.loadAnimation(Activity_Logged.this, R.anim.fadein);
+        fadeOut = AnimationUtils.loadAnimation(Activity_Logged.this, R.anim.fadeout);
+
         //Check if the bluetooth is switched on
         BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         if (!mBluetoothAdapter.isEnabled()) {
@@ -202,7 +222,7 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         if(getIntent().hasExtra("payment")) {
             if (getIntent().getExtras().getBoolean("payment") == true) {
                 successPaymentDialog.show(); //Show success payment dialog
-                Service_Notify.exchangeRequest = true;
+                mDrawer.openDrawer(); //Open the left panel
             }
             else {
                 errorBuyDialog.show(); //Show payment error dialog
@@ -215,8 +235,6 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
                 errorExchangeDialog.show(); //Show exchange error dialog
             }
         }
-
-        updateUIoffers(); //refresh the recyclerview list
     }
 
     //Method onStart of the activity
@@ -229,45 +247,27 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     @Override
     public void onStop(){
         super.onStop();
-        timer.cancel();
     }
 
     //Method onDestroy of the activity
     @Override
     public void onDestroy(){
         super.onDestroy();
-        timer.cancel();
     }
 
     //Method onResume of the activity
     @Override
     protected void onResume(){
         super.onResume();
-
-        //Start the timer task to refresh the offers
-        timer = new Timer();
-        timer.schedule(new TimerTask() { //Load offers data from the server using a request
-            @Override
-            public void run() {
-                updateUIoffers(); //refresh the recyclerview list
-            }
-        }, 0, 7000); //Time between calls
+        updateUIoffers();
+        registerReceiver(bReceiver, new IntentFilter("serviceIntent"));
     }
 
-    //runOnUiThread for refreshing the offer list of the activity
-    void updateUIoffers(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //Get the offers data and put into the list
-                _piggate.refreshOffers(); //Look for the server offers
-                offerList = _piggate.getOffers(); //Get the offers data and put into the lists
-                if(Service_Notify.exchangeRequest == true)
-                    getOffersToExchange(); //Get the offers which are pending to exchange (if any)
-                mAdapter= new OffersAdapter(offerList,getApplicationContext()); //Update the adapter
-                mRecyclerView.setAdapter(mAdapter); //Reset the RecyclerView
-            }
-        });
+    //Method onPause of the activity
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(bReceiver);
     }
 
     //Do the logout request and exit to the main activity
@@ -322,8 +322,8 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         }
     }
 
-    //Get the offers to exchange and put in into the left drawer list
-    public void getOffersToExchange(){
+    //Get the offers to exchange
+    synchronized public void getOffersToExchange(){
         _piggate.RequestGetExchange().setListenerRequest(new Piggate.PiggateCallBack() {
             @Override
             public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
@@ -335,39 +335,115 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
 
             @Override
             public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
-                if (data.length() == 0) //If there are no offers to exchange
-                    Service_Notify.exchangeRequest = false;
-                else { //If there are offers to exchange
-                    exchangeOfferList = new ArrayList<>(); //List of offers to exchange
-                    for (int i = 0; i < data.length(); i++) {
-                        try {
-                            exchangeOfferList.add(new PiggateOffers(data.getJSONObject(i))); //Get the exchange offer list
-                        } catch (JSONException e) {
-                        }
+                exchangeOfferList = new ArrayList<>(); //List of offers to exchange
+                for (int i = 0; i < data.length(); i++) {
+                    try {
+                        exchangeOfferList.add(new PiggateOffers(data.getJSONObject(i))); //Get the exchange offer list
+                    } catch (JSONException e) {
                     }
                 }
+
+                //Set the left drawer list
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        mDrawer.removeAllItems();
+                        for (int i = 0; i < exchangeOfferList.size(); i++) {
+                            mDrawer.addItem(new PrimaryDrawerItem()
+                                    .withName(exchangeOfferList.get(i).getName().toString())
+                                    .withDescription(exchangeOfferList.get(i).getDescription().toString()));
+                        }
+                    }
+                });
             }
 
             @Override
             public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
             }
         }).exec();
+    }
 
-        //Add the offers to exchange to the left drawer
-        mDrawer.removeAllItems();
-        for(int i=0; i<exchangeOfferList.size(); i++){
-            mDrawer.addItem(new PrimaryDrawerItem()
-                    .withName(exchangeOfferList.get(i).getName().toString())
-                    .withDescription(exchangeOfferList.get(i).getDescription().toString()));
+    //Get the offers for every beacon
+    //Function that search for nearby beacons and request to the server to refresh the offers
+    synchronized public void updateUIoffers(){
+        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons(); //Get the pending nearby iBeacons
+        Log.d("TEST", "BEACONS: " + beacons);
+        if(beacons.size()>0) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeLayout.setRefreshing(true); //Finish the refresh spinner
+                }
+            });
+            requestBeaconCounter = 0; //Initialize the request counter
+            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each iBeacon
+                _piggate.RequestOffers(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
+
+                    //Method onComplete for JSONObject
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onError for JSONObject
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onComplete for JSONArray
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        requestBeaconCounter++; //Increase the request counter
+                        Log.d("TEST", "counter=" + requestBeaconCounter + " beacons.size()-1=" + (beacons.size()-1));
+                        if (requestBeaconCounter == beacons.size()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    offerList = _piggate.getOffers(); //Get the offers data and put into the lists
+                                    Log.d("TEST", "Ofertas para todos los ibeacons obtenidas: " + offerList);
+                                    mAdapter = new OffersAdapter(offerList, Activity_Logged.this); //Update the adapter
+                                    mRecyclerView.setAdapter(mAdapter); //Reset the RecyclerView
+                                    getOffersToExchange(); //Get the offers which are pending to exchange (if any)
+                                    mSwipeLayout.setRefreshing(false); //Finish the refresh spinner
+                                }
+                            });
+                        }
+                    }
+
+                    //Method onError for JSONArray
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSwipeLayout.setRefreshing(false); //Finish the refresh spinner
+                            }
+                        });
+                    }
+
+                }).exec();
+            }
+        }
+        else{ //If there's no nearby beacons
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    offerList = _piggate.getOffers();
+                    Log.d("TEST", "Ofertas para todos los ibeacons obtenidas: " + offerList);
+                    mAdapter = new OffersAdapter(offerList, Activity_Logged.this); //Update the adapter
+                    mRecyclerView.setAdapter(mAdapter); //Reset the RecyclerView
+                    mSwipeLayout.setRefreshing(false); //Finish the refresh spinner
+                }
+            });
         }
     }
 
     //onRefresh method for SwipeRefreshLayout
     public void onRefresh() {
-        mSwipeLayout.setRefreshing(true);
-        //Get the offers data and put into the list
-        updateUIoffers();
-        mSwipeLayout.setRefreshing(false); //Update the adapter here
+        newBeaconsLayout.setVisibility(LinearLayout.GONE);
+        newBeaconsLayout.startAnimation(fadeOut);
+        updateUIoffers(); //Get the offers data and put into the list
     }
 
     //onBackPressed method for the activity

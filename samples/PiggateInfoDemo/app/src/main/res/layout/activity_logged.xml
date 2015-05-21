@@ -21,15 +21,36 @@
     android:id="@+id/container"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="#B6B6B6"
+    android:background="#d4d4d4"
     android:orientation="vertical"
-    tools:context="samples.piggate.com.piggateInfoDemo.Activity_SingUp"
-    tools:ignore="MergeRootFrame">
+    tools:context="samples.piggate.com.piggateCompleteExample.Activity_SingUp"
+    tools:ignore="MergeRootFrame"
+    android:weightSum="10">
+
+    <LinearLayout
+        android:id="@+id/newBeaconsLayout"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.75"
+        android:background="#FFD700"
+        android:visibility="gone">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:textColor="#000"
+            android:textStyle="bold"
+            android:text="Update to see new information!"/>
+
+    </LinearLayout>
 
     <android.support.v4.widget.SwipeRefreshLayout
         android:id="@+id/swipe_container"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="0dp"
+        android:layout_weight="10">
 
         <android.support.v7.widget.RecyclerView
             android:id="@+id/my_recycler_view"

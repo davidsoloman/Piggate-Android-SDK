@@ -22,9 +22,11 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.bluetooth.BluetoothAdapter;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.Bundle;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -35,6 +37,10 @@ import android.support.v7.widget.RecyclerView;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.widget.LinearLayout;
+
 import com.piggate.sdk.Piggate;
 import com.piggate.sdk.PiggateBeacon;
 import com.piggate.sdk.PiggateInfo;
@@ -54,7 +60,6 @@ Activity for the logged user. Allows to view the nearby beacon offers
 public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLayout.OnRefreshListener {
 
     Piggate _piggate; //Object of the Piggate class
-    private Timer timer; //Timer for refresh the content list
     private SwipeRefreshLayout mSwipeLayout; //Layout with refreshing listener
     private RecyclerView mRecyclerView; //Contain the content list
     private InfoAdapter mAdapter; //Adapter for the content list elements
@@ -63,14 +68,22 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     AlertDialog errorDialog;
     AlertDialog networkErrorDialog;
     int REQUEST_ENABLE_BT = 4623;
+    LinearLayout newBeaconsLayout;
+    Animation fadeIn, fadeOut;
+    int requestBeaconCounter;
 
-    //Method onPause of the activity
-    //Cancel the timers to suspend the updates when activity is inactive
-    @Override
-    public void onPause() {
-        super.onPause();
-        timer.cancel();
-    }
+    private BroadcastReceiver bReceiver = new BroadcastReceiver() { //Receive service information
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            Bundle bundle = intent.getExtras();
+            if(bundle != null) {
+                if (bundle.getBoolean("BeaconDiscovered")) {
+                    newBeaconsLayout.setVisibility(LinearLayout.VISIBLE);
+                    newBeaconsLayout.startAnimation(fadeIn);
+                }
+            }
+        }
+    };
 
     //Method onCreate of the activity
     @Override
@@ -81,18 +94,14 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         setContentView(R.layout.activity_logged);
         getSupportActionBar().setTitle(PiggateUser.getEmail());
 
-        //Check if the bluetooth is switched on
-        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
-        if (!mBluetoothAdapter.isEnabled()) {
-            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
-            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
-        }
+        startService(new Intent(getApplicationContext(), Service_Notify.class)); //Start the service
 
         //Initialize recycler view
         mRecyclerView = (RecyclerView)findViewById(R.id.my_recycler_view);
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        newBeaconsLayout = (LinearLayout)findViewById(R.id.newBeaconsLayout);
 
         //Initialize swipe layout
         mSwipeLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_container);
@@ -118,7 +127,15 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
             }
         });
 
-        updateUIlist(); //refresh the recyclerview list
+        fadeIn = AnimationUtils.loadAnimation(Activity_Logged.this, R.anim.fadein);
+        fadeOut = AnimationUtils.loadAnimation(Activity_Logged.this, R.anim.fadeout);
+
+        //Check if the bluetooth is switched on
+        BluetoothAdapter mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        if (!mBluetoothAdapter.isEnabled()) {
+            Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+            startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+        }
     }
 
     //Method onStart of the activity
@@ -143,28 +160,15 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
     @Override
     protected void onResume(){
         super.onResume();
-        //Start the timer task to refresh the offers
-        timer = new Timer();
-        timer.schedule(new TimerTask() { //Load offers data from the server using a request
-            @Override
-            public void run() {
-                updateUIlist(); //refresh the recyclerview list
-            }
-        }, 0, 7000); //Time between calls
+        updateUIlist();
+        registerReceiver(bReceiver, new IntentFilter("serviceIntent"));
     }
 
-    //runOnUiThread for refreshing the offer list of the activity
-    void updateUIlist(){
-        runOnUiThread(new Runnable() {
-            @Override
-            public void run() {
-                //Get the offers data and put into the list
-                _piggate.refreshInfo();
-                infoList = _piggate.getInfo();
-                mAdapter= new InfoAdapter(infoList,getApplicationContext());
-                mRecyclerView.setAdapter(mAdapter);
-            }
-        });
+    //Method onPause of the activity
+    @Override
+    public void onPause() {
+        super.onPause();
+        unregisterReceiver(bReceiver);
     }
 
     //Do the logout request and exit to the main activity
@@ -219,12 +223,80 @@ public class Activity_Logged extends ActionBarActivity implements SwipeRefreshLa
         }
     }
 
+    //Function that search for nearby beacons and request to the server to get the info list
+    synchronized public void updateUIlist(){
+        final ArrayList<PiggateBeacon> beacons= PiggateBeacon.getPendingBeacons(); //Get the pending nearby beacons
+        if(beacons.size()>0) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeLayout.setRefreshing(true); //Finish the refresh spinner
+                }
+            });
+            requestBeaconCounter = 0; //Initialize the request counter
+            for(int x=0;x<beacons.size();x++){ //Load offers data from the server using a GET request for each iBeacon
+                _piggate.RequestInfo(beacons.get(x)).setListenerRequest(new Piggate.PiggateCallBack() {
+
+                    //Method onComplete for JSONObject
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onError for JSONObject
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONObject data) {
+                        //Unused
+                    }
+
+                    //Method onComplete for JSONArray
+                    @Override
+                    public void onComplete(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        requestBeaconCounter++; //Increase the request counter
+                        if (requestBeaconCounter == beacons.size()) {
+                            runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    infoList = _piggate.getInfo(); //Get the info data and put into the lists
+                                    mAdapter = new InfoAdapter(infoList, Activity_Logged.this); //Update the adapter
+                                    mRecyclerView.setAdapter(mAdapter); //Reset the RecyclerView
+                                    mSwipeLayout.setRefreshing(false); //Finish the refresh spinner
+                                }
+                            });
+                        }
+                    }
+
+                    //Method onError for JSONArray
+                    @Override
+                    public void onError(int statusCode, Header[] headers, String msg, JSONArray data) {
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                mSwipeLayout.setRefreshing(false); //Finish the refresh spinner
+                            }
+                        });
+                    }
+                }).exec();
+            }
+        }
+        else{ //If there's no nearby beacons
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    infoList = _piggate.getInfo(); //Get the info data and put into the lists
+                    mAdapter = new InfoAdapter(infoList, Activity_Logged.this); //Update the adapter
+                    mRecyclerView.setAdapter(mAdapter); //Reset the RecyclerView
+                    mSwipeLayout.setRefreshing(false); //Finish the refresh spinner
+                }
+            });
+        }
+    }
+
     //onRefresh method for SwipeRefreshLayout
     public void onRefresh() {
-        mSwipeLayout.setRefreshing(true);
-        //Get the offers data and put into the list
-        updateUIlist();
-        mSwipeLayout.setRefreshing(false); //Update the adapter here
+        newBeaconsLayout.setVisibility(LinearLayout.GONE);
+        newBeaconsLayout.startAnimation(fadeOut);
+        updateUIlist(); //Get the offers data and put into the list
     }
 
     //onBackPressed method for the activity

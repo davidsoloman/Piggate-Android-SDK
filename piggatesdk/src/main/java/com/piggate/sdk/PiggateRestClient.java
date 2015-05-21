@@ -78,7 +78,7 @@ public class PiggateRestClient {
     //Function to get the AsyncHttpClient object
     public static AsyncHttpClient getClient()
     {
-            syncClient.setTimeout(150000);
+            syncClient.setTimeout(10000);
             return syncClient;
     }
 

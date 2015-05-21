@@ -142,10 +142,10 @@ public class buyOfferActivity extends ActionBarActivity{
                             Integer.parseInt(SpinnerMonth.getSelectedItem().toString()),
                             Integer.parseInt(SpinnerYear.getSelectedItem().toString()),
                             EditCVC.getText().toString(),
+                            "pk_test_BN86VnxiMBHkZtzPmpykc56g", //Stripe test. Will be returned by requests in next release
                             buyOfferActivity.this,
                             "Validating",
                             "Wait while the credit card is validated")) {
-
                         openBuyLayout();
                     } else
                         errorDialog.show();
@@ -263,9 +263,9 @@ public class buyOfferActivity extends ActionBarActivity{
         buylayout.startAnimation(slidetoRight);
         buylayout.setVisibility(View.GONE);
         cardlayout.setVisibility(View.VISIBLE);
-        cardlayout.setAnimation(slidefromLeft);
+        cardlayout.startAnimation(slidefromLeft);
         headerLayout.setVisibility(View.VISIBLE);
-        headerLayout.setAnimation(slidefromLeft);
+        headerLayout.startAnimation(slidefromLeft);
     }
 
     //Create the options menu for action bar

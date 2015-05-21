@@ -104,6 +104,7 @@ public class Service_Notify extends Service{
             public void GetNewBeacons(ArrayList<PiggateBeacon> beacons) {
                 //Do a post notification to the notification bar when a beacon (an offer) is near with a custom message
                 _piggate.postNotification(notificationtitle, notificationMsg, Activity_Main.class, R.drawable.logo);
+                NotifyNewBeacons(); //Notify the activity about nearby beaconsd
             }
 
             //Handles the actions where beacons are detected
@@ -187,6 +188,13 @@ public class Service_Notify extends Service{
         else{
             Service_Notify.notificationMsg = defaultMsg; //Default message if there's a network error
         }
+    }
+
+    //Notify the activity about nearby beacons
+    private void NotifyNewBeacons() {
+        Intent intent = new Intent("serviceIntent");
+        intent.putExtra("BeaconDiscovered", true);
+        sendBroadcast(intent);
     }
 
     //Check if the internet connection is working
